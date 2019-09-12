@@ -48,3 +48,31 @@ npm run serve
 ```
 
 
+# Design
+
+This is a simulation hosted in a web browser.
+
+`index.html` sets up the Canvas and UI, then runs main.js.
+`main.js` creates a nBodySystem(), passing it a nBodyVisCanvas() linked to the canvas in index.html
+`nBodySystem.js` creates a sim loop (game loop) and abstracts the computation implementation
+`nBodyForces.wasm` Wasm complilation of AssemblyScript nBodyForces.ts
+`nBodyForces.js` JavaScript compilation of nBodyForces.ts
+
+```
+      UI THREAD            /         WORKER THREAD
+
+       browser
+          |
+     [index.html]
+          |
+      [main.js]
+          | 
+   [nBodySystem.js]-----web worker-----[worker.js]
+     |          |    message passing        |
+     |          |                           |
+   draws   web worker fallback         [nBodyForces.wasm]
+    to          |
+     |     [nBodyForces.js]
+     |     
+  [nBodyVisCanvas.js]
+```
