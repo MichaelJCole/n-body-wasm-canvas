@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <canvas id="visualization"></canvas>
+  <div id="controls">
+    <input type="button" value="Start" onclick="Start();" />
+    <input type="button" value="More debris" onclick="AddBody();" />
+  </div>
+
+  <script src="nBodySystem.js"></script> 
+  <script>
+
+    // Make a Web
+
+    // Create our Web Worker.
+    var worker = new Worker("worker.js");
+    worker.onerror = function (evt) {
+      console.log(`Error from Web Worker: ${evt.message}`);
+    }
+    worker.onmessage = function (evt) {
+      alert(`Message from the Web Worker:\n\n ${evt.data}`);
+    }
+
+    // fetch() our wasm file and compile it.
+    // Then post the compiled as a module 
+    WebAssembly.compileStreaming(fetch("out/main.wasm"))
+      .then(WasmModule =>
+        worker.postMessage({ "MessagePurpose": "CompiledModule","WasmModule": WasmModule })
+      );
+
+    // Instantiate our simulation
+
+    var sim = new nBodySimulation();
+
+    function Start() {
+      sim.start();
+    }
+
+    function AddBody() {
+      sim.addBody();
+    }
+  </script>
+</body>
+
+</html>

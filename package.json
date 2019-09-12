@@ -1,0 +1,14 @@
+{
+  "name": "n-body-wasm-canvas",
+  "description": "A n-body simulation, calculated with wasm, and visualized with canvas",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "gulp build --gulpfile assemblyBuild.js",
+    "serve": "http-server ."
+  },
+  "devDependencies": {
+    "assemblyscript": "github:AssemblyScript/assemblyscript",
+    "gulp": "^3",
+    "http-server": "^0.11.1"
+  }
+}
