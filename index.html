@@ -3,13 +3,33 @@
 
 <head>
   <meta charset="utf-8" />
+  <style>
+    html, body, #visualization {
+      margin: 0;
+      padding: 0;
+      background-color: #1F1F1F;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+    #controls input {
+      background-color: green;
+      color: white;
+
+    }
+  </style>
 </head>
 
 <body>
   <canvas id="visualization"></canvas>
   <div id="controls">
-    <input type="button" value="Start" onclick="Start();" />
-    <input type="button" value="More debris" onclick="AddBody();" />
+    <input id="go" type="button" value="Go!" onclick="Go();" />
+    <input id="more" type="button" value="More!" onclick="AddBody();" />
   </div>
 
   <script src="nBodySystem.js"></script> 

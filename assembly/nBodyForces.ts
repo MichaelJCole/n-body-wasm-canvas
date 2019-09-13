@@ -6,6 +6,8 @@
  * Doing this means the game loop calculate forces as needed and re-use forces if overloaded.
  */
 
+// TODO FIXME Possible performance boost using unchecked() https://github.com/AssemblyScript/assemblyscript/issues/838
+
 // Gravitational constant.
 export const G: f64 = 6.674e-11;
 

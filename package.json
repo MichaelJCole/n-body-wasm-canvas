@@ -4,11 +4,17 @@
   "version": "1.0.0",
   "scripts": {
     "build": "gulp build --gulpfile assemblyBuild.js",
-    "serve": "http-server ."
+    "serve": "http-server .",
+    "dev": "lite-server ."
   },
+  "dependencies": {},
   "devDependencies": {
     "assemblyscript": "github:AssemblyScript/assemblyscript",
     "gulp": "^3",
-    "http-server": "^0.11.1"
+    "gulp-rename": "^1.4.0",
+    "gulp-typescript": "^5.0.1",
+    "http-server": "^0.11.1",
+    "lite-server": "^2.5.4",
+    "typescript": "^3.6.3"
   }
 }

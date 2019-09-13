@@ -1,6 +1,11 @@
 const gulp = require("gulp");
+const ts = require('gulp-typescript');
+const rename = require('gulp-rename');
+const portable = require("assemblyscript/std/portable");
+
+
 /*
-  Runtime variants:
+  Assemblyscript Runtime variants:
 
   "--runtime", "full" (default)
     A proper memory manager and reference-counting based garbage collector, with runtime interfaces
@@ -21,17 +26,32 @@ const gulp = require("gulp");
 
     For more information see: https://docs.assemblyscript.org/details/runtime
 */
-gulp.task("build", callback => {
+gulp.task("build-wasm", callback => {
   const asc = require("assemblyscript/bin/asc");
   asc.main([
     "nBodyForces.ts",
     "--baseDir", "assembly",
     "--binaryFile", "../out/nBodyForces.wasm",
+    "--asmjsFile", "../out/nBodyForces.asc.js",
+    "--runtime", "half",
+    "-O3",        // https://github.com/AssemblyScript/assemblyscript/issues/838
+    "--noAssert",
     "--sourceMap",
     "--measure",
-    "--runtime", "half",
-    "--optimize"
   ], callback);
 });
 
+gulp.task('build-js', function () {
+  const tsProject = ts.createProject('assembly/tsconfig.json');
+
+  return tsProject.src()
+      .pipe(tsProject())
+      .pipe(rename(function (path) {
+        path.basename += ".tsc";
+      }))
+      .pipe(gulp.dest('out'));
+});
+
+
+gulp.task("build", ["build-wasm", "build-js"]);
 gulp.task("default", ["build"]);

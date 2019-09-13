@@ -27,9 +27,9 @@ nBodySystem.js           - Simulation with a game loop
 worker.js                - Web worker to run our Wasm
 
 node_modules             - Node.js stuff
-package.json
-package-lock.json
-README.md                - Turtles all the way down.
+package.json             - Package versions and npm run commands
+package-lock.json        - Future proofs package installation
+README.md                - Turtles all the way down
 ```
 
 # Running Locally
@@ -54,7 +54,7 @@ This is a simulation hosted in a web browser.
 
 `index.html` sets up the Canvas and UI, then runs main.js.
 `main.js` creates a nBodySystem(), passing it a nBodyVisCanvas() linked to the canvas in index.html
-`nBodySystem.js` creates a sim loop (game loop) and abstracts the computation implementation
+`nBodySystem.js` game loop and loads computation implementation (Wasm or Javascript)
 `nBodyForces.wasm` Wasm complilation of AssemblyScript nBodyForces.ts
 `nBodyForces.js` JavaScript compilation of nBodyForces.ts
 

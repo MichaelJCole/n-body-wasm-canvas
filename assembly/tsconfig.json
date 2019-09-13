@@ -1,5 +1,7 @@
 {
-  "extends": "../node_modules/assemblyscript/std/assembly.json",
+  "// See https://docs.assemblyscript.org/details/portability": true,
+  "// extends": "../node_modules/assemblyscript/std/assembly.json",
+  "extends": "../node_modules/assemblyscript/std/portable.json",
   "include": [
     "./**/*.ts",
     "constants.js"
