@@ -8,29 +8,11 @@ Hello, this is a tech demo for:
 
 We'll apply this tech to the [n-body problem](https://en.wikipedia.org/wiki/N-body_problem).  This is an astro-physics problem famous for being numerical (solved by a program) instead of analytical (solved by equations).
 
-Essentially we'll throw some debris on a 2-d plane and watch it go spinny.
+Essentially we'll throw some debris in a 3d space and watch it go spinny.
 
 Why?  Anectodally this is a 60% performance boost on mobile.  Also, it's hard-core nerd-core.
 
-# End Result:
-
-This projects expands on an AssemblyScript starter project from [https://webassembly.studio](https://webassembly.studio) 
-
-```
-assembly/nBodyForces.ts  - The forces math written in AssemblyScript
-assemblyBuild.js         - Gulp build script    
-out/nBodyForces.wasm     - WebAssembly output ready for browser
-
-index.html               - main file to view the simulation
-main.js                  - Entry point
-nBodySystem.js           - Simulation with a game loop
-worker.js                - Web worker to run our Wasm
-
-node_modules             - Node.js stuff
-package.json             - Package versions and npm run commands
-package-lock.json        - Future proofs package installation
-README.md                - Turtles all the way down
-```
+This is an engineering journal of sorts as I experiment with the tech.
 
 # Running Locally
 
@@ -50,29 +32,45 @@ npm run serve
 
 # Design
 
-This is a simulation hosted in a web browser.
+This is a simulation hosted in a web browser, and expands on an AssemblyScript starter project from [https://webassembly.studio](https://webassembly.studio) 
 
-`index.html` sets up the Canvas and UI, then runs main.js.
-`main.js` creates a nBodySystem(), passing it a nBodyVisCanvas() linked to the canvas in index.html
-`nBodySystem.js` game loop and loads computation implementation (Wasm or Javascript)
-`nBodyForces.wasm` Wasm complilation of AssemblyScript nBodyForces.ts
-`nBodyForces.js` JavaScript compilation of nBodyForces.ts
-
+Files:
 ```
-      UI THREAD            /         WORKER THREAD
+index.html               -  sets up the Canvas and UI, then runs main.js.
+main.js                  -  Entry point.  Creates a nBodySystem(), passing a nBodyVisCanvas()
 
-       browser
-          |
-     [index.html]
-          |
-      [main.js]
-          | 
-   [nBodySystem.js]-----web worker-----[worker.js]
-     |          |    message passing        |
-     |          |                           |
-   draws   web worker fallback         [nBodyForces.wasm]
-    to          |
-     |     [nBodyForces.js]
-     |     
-  [nBodyVisCanvas.js]
+nBodyVisCanvas.js        -  Simulation visualizers
+nBodyVisPrettyPrint.js
+
+nBodySystem.js           -  Simulation loop and loads a nBodyForces implementation
+worker.js                -  Web worker to run our calculations in separate thread
+
+gulpfile.js              -  Gulpfile to process assembly/*
+assembly/nBodyForces.ts  -  AssemblyScript code to calculate forces.  Transpiled to out/*
+
+out/nBodyForces.wasm     -  nBodyForces.ts --binaryen-transpiler--> wasm
+out/nBodyForces.asc.js   -  nBodyForces.ts --binaryen-transpiler--> js
+out/nBodyForces.tsc.js   -  nBodyForces.ts --typescript-transpiler--> js
+
+node_modules             -  Node.js stuff
+package.json             -  Package versions and npm run commands
+package-lock.json        -  Future proofs package installation
+README.md                -  Turtles all the way down
+```
+
+Architecture:
+```
+UI THREAD                /          WORKER THREAD
+   
+browser
+  |
+index.html
+  |
+main.js
+  |
+nBodySystem.js-----(web worker------worker.js
+  |              message passing)     |
+(draws to)                          out/nBodyForces.wasm
+  |
+nBodyVisCanvas.js
 ```
