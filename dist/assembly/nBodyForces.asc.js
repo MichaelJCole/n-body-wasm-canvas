@@ -32,8 +32,8 @@ function asmFunc(global, env, buffer) {
  var nBodyForces_G = 6.674e-11;
  var nBodyForces_bodySize = 4;
  var nBodyForces_forceSize = 3;
- var $lib_rt___rtti_base = 600;
- var $lib_heap___heap_base = 644;
+ var $lib_rt___rtti_base = 576;
+ var $lib_heap___heap_base = 620;
  function $lib_rt_tlsf_removeBlock($0, $1) {
   $0 = $0 | 0;
   $1 = $1 | 0;
@@ -1569,7 +1569,7 @@ function asmFunc(global, env, buffer) {
  
  function nBodyForces_nBodyForces($0) {
   $0 = $0 | 0;
-  var $2 = 0, $7 = 0, $3 = 0, $8 = 0, $9 = 0, $4 = 0, $5 = 0, $6 = 0, $1 = 0;
+  var $2 = 0, $3 = 0, $7 = 0, $8 = 0, $9 = 0, $4 = 0, $5 = 0, $6 = 0, $1 = 0;
   $lib_rt_pure___retain($0 | 0) | 0;
   $1 = ($lib_typedarray_Float64Array_get_length($0 | 0) | 0 | 0) / (4 | 0) | 0;
   if ((($lib_typedarray_Float64Array_get_length($0 | 0) | 0 | 0) % (4 | 0) | 0 | 0) != (0 | 0)) {
@@ -1591,15 +1591,14 @@ function asmFunc(global, env, buffer) {
       $5 = Math_imul($3, 4);
       $6 = Math_imul($4, 4);
       $7 = nBodyForces_twoBodyForces(+(+$lib_typedarray_Float64Array___get($0 | 0, $5 | 0)), +(+$lib_typedarray_Float64Array___get($0 | 0, $5 + 1 | 0 | 0)), +(+$lib_typedarray_Float64Array___get($0 | 0, $5 + 2 | 0 | 0)), +(+$lib_typedarray_Float64Array___get($0 | 0, $5 + 3 | 0 | 0)), +(+$lib_typedarray_Float64Array___get($0 | 0, $6 | 0)), +(+$lib_typedarray_Float64Array___get($0 | 0, $6 + 1 | 0 | 0)), +(+$lib_typedarray_Float64Array___get($0 | 0, $6 + 2 | 0 | 0)), +(+$lib_typedarray_Float64Array___get($0 | 0, $6 + 3 | 0 | 0))) | 0;
-      $lib_builtins_trace(592 | 0, 3 | 0, +(+$lib_array_Array_f64____get($7 | 0, 0 | 0)), +(+$lib_array_Array_f64____get($7 | 0, 1 | 0)), +(+$lib_array_Array_f64____get($7 | 0, 2 | 0)), +(0.0), +(0.0));
       $8 = Math_imul($3, 3);
       $9 = Math_imul($4, 3);
       $lib_typedarray_Float64Array___set($2 | 0, $8 | 0, +(+$lib_typedarray_Float64Array___get($2 | 0, $8 | 0) + +$lib_array_Array_f64____get($7 | 0, 0 | 0)));
       $lib_typedarray_Float64Array___set($2 | 0, $8 + 1 | 0 | 0, +(+$lib_typedarray_Float64Array___get($2 | 0, $8 + 1 | 0 | 0) + +$lib_array_Array_f64____get($7 | 0, 1 | 0)));
       $lib_typedarray_Float64Array___set($2 | 0, $8 + 2 | 0 | 0, +(+$lib_typedarray_Float64Array___get($2 | 0, $8 + 2 | 0 | 0) + +$lib_array_Array_f64____get($7 | 0, 2 | 0)));
-      $lib_typedarray_Float64Array___set($2 | 0, $9 | 0, +(+$lib_typedarray_Float64Array___get($2 | 0, $9 | 0) + +$lib_array_Array_f64____get($7 | 0, 0 | 0)));
-      $lib_typedarray_Float64Array___set($2 | 0, $9 + 1 | 0 | 0, +(+$lib_typedarray_Float64Array___get($2 | 0, $9 + 1 | 0 | 0) + +$lib_array_Array_f64____get($7 | 0, 1 | 0)));
-      $lib_typedarray_Float64Array___set($2 | 0, $9 + 2 | 0 | 0, +(+$lib_typedarray_Float64Array___get($2 | 0, $9 + 2 | 0 | 0) + +$lib_array_Array_f64____get($7 | 0, 2 | 0)));
+      $lib_typedarray_Float64Array___set($2 | 0, $9 | 0, +(+$lib_typedarray_Float64Array___get($2 | 0, $9 | 0) - +$lib_array_Array_f64____get($7 | 0, 0 | 0)));
+      $lib_typedarray_Float64Array___set($2 | 0, $9 + 1 | 0 | 0, +(+$lib_typedarray_Float64Array___get($2 | 0, $9 + 1 | 0 | 0) - +$lib_array_Array_f64____get($7 | 0, 1 | 0)));
+      $lib_typedarray_Float64Array___set($2 | 0, $9 + 2 | 0 | 0, +(+$lib_typedarray_Float64Array___get($2 | 0, $9 + 2 | 0 | 0) - +$lib_array_Array_f64____get($7 | 0, 2 | 0)));
       $4 = $4 + 1 | 0;
       $lib_rt_pure___release($7 | 0);
       continue loop_1;
@@ -1802,8 +1801,7 @@ assignasmFunc(368, "HAAAAAEAAAABAAAAHAAAAEkAbgB2AGEAbABpAGQAIABsAGUAbgBnAHQAaAA=
 assignasmFunc(416, "JgAAAAEAAAABAAAAJgAAAH4AbABpAGIALwBhAHIAcgBhAHkAYgB1AGYAZgBlAHIALgB0AHMA");
 assignasmFunc(472, "JAAAAAEAAAABAAAAJAAAAH4AbABpAGIALwB0AHkAcABlAGQAYQByAHIAYQB5AC4AdABzAA==");
 assignasmFunc(528, "GgAAAAEAAAABAAAAGgAAAH4AbABpAGIALwBhAHIAcgBhAHkALgB0AHMA");
-assignasmFunc(576, "AgAAAAEAAAABAAAAAgAAAGYA");
-assignasmFunc(600, "BQAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABENAAACAAAAEw0AAAIAAAA=");
+assignasmFunc(576, "BQAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABENAAACAAAAEw0AAAIAAAA=");
 var retasmFunc = asmFunc({Math,Int8Array,Uint8Array,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,NaN,Infinity}, {abort:function() { throw new Error('abort'); },abort,trace},memasmFunc);
 export var memory = retasmFunc.memory;
 export var __alloc = retasmFunc.__alloc;

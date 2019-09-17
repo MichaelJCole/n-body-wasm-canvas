@@ -31,9 +31,6 @@ export class Body {
     this.y = y
     this.z = z
     this.mass = mass
-    this.pX = (pX === undefined) ? (Math.random()-.5) * 10 : pX
-    this.pY = (pY === undefined) ? (Math.random()-.5) * 10 : pY
-    this.pZ = pZ
   }
 }
 
@@ -88,7 +85,7 @@ export class nBodySimulator {
   start() {
     // This is the simulation loop.  step() calls visualize()
     const step = this.step.bind(this)
-    //setInterval(step, this.simulationSpeed)
+    setInterval(step, this.simulationSpeed)
   }
 
   /**
@@ -111,8 +108,6 @@ export class nBodySimulator {
 
   /** 
    * Use our web worker to calculate the forces to apply on our bodies.
-   * 
-   * CHALLENGE - pass an array of floats from here through web worker to wasm and return values back
    */
   calculateForces() {
     this.workerCalculating = true
@@ -134,37 +129,69 @@ export class nBodySimulator {
     })
     
     // postMessage() to worker to start calculation
-    // Continued in workerWasm.js worker.onmessage()
+    // Execution continues in workerWasm.js worker.onmessage()
     this.worker.postMessage({ 
       purpose: 'nBodyForces',
       arrBodies: this.arrBodies,
     })
 
-    // Continued in step()  await this.calculateForces()
+    // Return promise for completion
+    // Promise is resolve()d in this.worker.onmessage() below.
+    // Once resolved, execution continees in step() above - await this.calculateForces()
     return ret
   }
 
   /**
-   * Apply those forces.  Yes, this could be moved out of the UI thread.
+   * Apply those forces.  Yes, this could be moved out of the UI thread,
+   * but passing objects across Wasm boundaries is dumb-hard - the kind of hard that is neither fun nor profitable.
+   * 
+   * Physics:
+   * 
+   * V = d/t             Velocity = distance / time
+   * P = mV              Momentum = mass * Velocity
+   * F = ma              Force = mass * acceleration
+   * 
+   * Given the positions and mass of our bodies, we calculated the Grav forces applied in arrForces.
+   * 
+   * Now, we want to push the bodies around using the forces.
+   * 
+   * This is me trying to remember how to do high school physics.
+   * 
+   * Given our positions and forces, 
+   * 
+   * F = ma.            Known F (wasm) and m (body)
+   * a = F/m.           Known a
+   * a = dV / t.        Known t (1/tick) - we will apply previous forces, so t always = 1
+   * F/m = dV / t
+   * dV = Ft/m
+   * V2 = V1 + dV       Known dV, V1
+   * x2 = x1 + V2 * t   Known x1, V2, t
+   * 
+   * x2 = x1 + (V1 + (F/m))
+   * 
+   * body.vX = body.vX + body.forceX / body.mass
+   * body.x = body.x + body.vX
    */
   applyForces() {
-    // Accelerate our bodies using the forces calcuated
-    // F = ma.   a = F/m.
-    // Here we convert magical forces to physical energy in the MatterJS world
-    // f = ma.   a = f/m.  
-    // Each body has one mass and several force polarities (pG, pM, pD).
-    // Force polarity also scales mass.  
-    //   pG = 1 regular gravity
-    //   pG = -1 regular anti-gravity
-    //   pG = -2 double-strength anti-gravity
+    this.objBodies.forEach( (body, i) => {
+      // Capture forces
+      body.forceX = this.arrForces[i * this.forceSize + 0]
+      body.forceY = this.arrForces[i * this.forceSize + 1]
+      body.forceZ = this.arrForces[i * this.forceSize + 2]
+      
+      // Convert to velocity vectors
+      // body.vX = body.vX + body.forceX / body.mass
+      body.vX = body.vX + body.forceX / body.mass  // We could remove mass in nBodyForces.ts and just send velocities, but I'm super bored with this project already.
+      body.vY = body.vY + body.forceY / body.mass  
+      body.vZ = body.vZ + body.forceZ / body.mass  
 
-    // fG = ma*pG.  aG = f/m*pG
-    // a = dV / t
-    // v = x / t
-
-    // For MatterJS, we want to affect Velocity or Acceleration
-    // for our canvas simulation, we apply them linearly
-    //console.log('applyForces()', this.arrForces)
+      // Update position from velocity
+      // body.x = body.x + body.vX
+      //body.x = body.x + body.vX
+      //body.y = body.y + body.vY
+      //body.z = body.z + body.vZ
+    })
+    //debugger
   }
 
   /**
@@ -184,42 +211,44 @@ export class nBodySimulator {
   }
 
   /**
-   * Setup our web worker
+   * Setup our web worker - buckle up, let's get weird.
    */
   setupWebWorker() {
 
     // Create a Web Worker (separate thread) that we'll pass the WebAssembly module to.         
     this.worker = new Worker("workerWasm.js");
 
-    // Console errors from worker.js
+    // Console errors from workerWasm.js
     this.worker.onerror = function (evt) {
       console.log(`Error from Web Worker: ${evt.message}`);
     }
 
-    // Listen for messages from worker.js postMessage()
+    // Listen for messages from workerWasm.js postMessage()
     const self = this
     this.worker.onmessage = function (evt) {
       if (evt && evt.data) {
-        const msg = evt.data
-        console.log('nBodySimulator.js', msg)
-
+        
         // Messages are dispatched by purpose
+        const msg = evt.data
         switch (msg.purpose) {
 
           // worker has loaded the wasm module we compiled and sent.  Let the magic begin!
+          // See postmessage at the bottom of this function.
+
           case 'wasmReady': 
             self.workerReady = true
             break
 
           // wasm has computed forces for us
+
           case 'nBodyForces':
             self.workerCalculating = false
+            // Accept/Reject the promise to resolve await this.calculateForces() in step() above
             if (msg.error) {
-              // Accept/Reject the promise to resolve await in step() above
               self.forcesReject(msg.error)
             } else {
-              this.arrForces = msg.arrForces
-              self.forcesResolve(this.arrForces)
+              self.arrForces = msg.arrForces
+              self.forcesResolve(self.arrForces)
             }
             break
         }

@@ -24,8 +24,7 @@
  (data (i32.const 416) "&\00\00\00\01\00\00\00\01\00\00\00&\00\00\00~\00l\00i\00b\00/\00a\00r\00r\00a\00y\00b\00u\00f\00f\00e\00r\00.\00t\00s\00")
  (data (i32.const 472) "$\00\00\00\01\00\00\00\01\00\00\00$\00\00\00~\00l\00i\00b\00/\00t\00y\00p\00e\00d\00a\00r\00r\00a\00y\00.\00t\00s\00")
  (data (i32.const 528) "\1a\00\00\00\01\00\00\00\01\00\00\00\1a\00\00\00~\00l\00i\00b\00/\00a\00r\00r\00a\00y\00.\00t\00s\00")
- (data (i32.const 576) "\02\00\00\00\01\00\00\00\01\00\00\00\02\00\00\00f\00")
- (data (i32.const 600) "\05\00\00\00\10\00\00\00\00\00\00\00\10\00\00\00\00\00\00\00\10\00\00\00\00\00\00\00\11\0d\00\00\02\00\00\00\13\0d\00\00\02\00\00\00")
+ (data (i32.const 576) "\05\00\00\00\10\00\00\00\00\00\00\00\10\00\00\00\00\00\00\00\10\00\00\00\00\00\00\00\11\0d\00\00\02\00\00\00\13\0d\00\00\02\00\00\00")
  (global $~lib/rt/tlsf/ROOT (mut i32) (i32.const 0))
  (global $~lib/rt/pure/CUR (mut i32) (i32.const 0))
  (global $~lib/rt/pure/END (mut i32) (i32.const 0))
@@ -34,8 +33,8 @@
  (global $nBodyForces/G f64 (f64.const 6.674e-11))
  (global $nBodyForces/bodySize i32 (i32.const 4))
  (global $nBodyForces/forceSize i32 (i32.const 3))
- (global $~lib/rt/__rtti_base i32 (i32.const 600))
- (global $~lib/heap/__heap_base i32 (i32.const 644))
+ (global $~lib/rt/__rtti_base i32 (i32.const 576))
+ (global $~lib/heap/__heap_base i32 (i32.const 620))
  (export "memory" (memory $0))
  (export "__alloc" (func $~lib/rt/tlsf/__alloc))
  (export "__retain" (func $~lib/rt/pure/__retain))
@@ -4396,8 +4395,8 @@
  )
  (func $nBodyForces/nBodyForces (; 44 ;) (type $FUNCSIG$ii) (param $0 i32) (result i32)
   (local $2 i32)
-  (local $7 i32)
   (local $3 i32)
+  (local $7 i32)
   (local $8 i32)
   (local $9 i32)
   (local $4 i32)
@@ -4500,20 +4499,6 @@
       call $~lib/typedarray/Float64Array#__get
       call $nBodyForces/twoBodyForces
       local.set $7
-      i32.const 592
-      i32.const 3
-      local.get $7
-      i32.const 0
-      call $~lib/array/Array<f64>#__get
-      local.get $7
-      i32.const 1
-      call $~lib/array/Array<f64>#__get
-      local.get $7
-      i32.const 2
-      call $~lib/array/Array<f64>#__get
-      f64.const 0
-      f64.const 0
-      call $~lib/builtins/trace
       local.get $3
       i32.const 3
       i32.mul
@@ -4568,7 +4553,7 @@
       local.get $7
       i32.const 0
       call $~lib/array/Array<f64>#__get
-      f64.add
+      f64.sub
       call $~lib/typedarray/Float64Array#__set
       local.get $2
       local.get $9
@@ -4582,7 +4567,7 @@
       local.get $7
       i32.const 1
       call $~lib/array/Array<f64>#__get
-      f64.add
+      f64.sub
       call $~lib/typedarray/Float64Array#__set
       local.get $2
       local.get $9
@@ -4596,7 +4581,7 @@
       local.get $7
       i32.const 2
       call $~lib/array/Array<f64>#__get
-      f64.add
+      f64.sub
       call $~lib/typedarray/Float64Array#__set
       local.get $4
       i32.const 1

@@ -51,7 +51,7 @@ function twoBodyForces(x0: f64, y0: f64, z0: f64, m0: f64, x1: f64, y1: f64, z1:
 
   //trace("Gmm, dx, dy, dz", 4, Gmm, dx, dy, dz)
 
-  // Return calculated 2-vector force
+  // Return calculated foce vector
   const ret: f64[] = new Array<f64>(3)
   ret[0] = Gmm / (dx * dx);
   ret[1] = Gmm / (dy * dy);
@@ -110,7 +110,7 @@ export function nBodyForces(arrBodies: Float64Array): Float64Array {
         arrBodies[bI], arrBodies[bI+1], arrBodies[bI+2], arrBodies[bI+3], // x,y,z,m
         arrBodies[bJ], arrBodies[bJ+1], arrBodies[bJ+2], arrBodies[bJ+3], // x,y,z,m
       )
-      trace("f", 3, f[0], f[1], f[2])
+      //trace("f", 3, f[0], f[1], f[2])
 
       // Add this pair's force on one another to their total forces applied x,y,z
 
@@ -126,9 +126,9 @@ export function nBodyForces(arrBodies: Float64Array): Float64Array {
 
       // body1    
       //trace("update arrForces[bJ]: ", 4, bI, arrForces[fI], arrForces[fI+1], arrForces[fI+2]) // x,y,z
-      arrForces[fJ] = arrForces[fJ] + f[0] 
-      arrForces[fJ+1] = arrForces[fJ+1] + f[1]    
-      arrForces[fJ+2] = arrForces[fJ+2] + f[2]
+      arrForces[fJ] = arrForces[fJ] - f[0]   // apply forces in opposite direction
+      arrForces[fJ+1] = arrForces[fJ+1] - f[1]    
+      arrForces[fJ+2] = arrForces[fJ+2] - f[2]
       //trace("update arrForces[bJ]: ", 4, bJ, arrForces[fJ], arrForces[fJ+1], arrForces[fJ+2]) // x,y,z
       //trace('done j', 1, j)
     }

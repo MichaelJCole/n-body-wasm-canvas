@@ -42,8 +42,6 @@ this.onmessage = function (evt) {
 
   // message from UI thread
   var msg = evt.data 
-  
-  console.log('WebWorker', msg)
   switch (msg.purpose) {
 
     // Message: Load new wasm module
@@ -56,24 +54,25 @@ this.onmessage = function (evt) {
       return 
 
 
-    /** 
-     * 
-     */
+    // Message: Given array of floats describing a system of bodies (x,y,x,mass), 
+    // calculate the Grav forces to be applied to each body
+
     case 'nBodyForces':
       if (!wasm) throw new Error('wasm not initialized')
 
-      // marshal msg.arrBodies to cross the boundary
+      // Copy msg.arrBodies array into the wasm instance, increase GC count
       const dataRef = wasm.__retain(wasm.__allocArray(wasm.FLOAT64ARRAY_ID, msg.arrBodies));
-      // sync calculations
+      // Do the calculations in this thread synchronously
       const resultRef = wasm.nBodyForces(dataRef);
-      // marshal result 
+      // Copy result array from the wasm instance
       const arrForces = wasm.__getFloat64Array(resultRef);
 
-      // release mem in wasm instance (?)
+      // Decrease the GC count on dataRef from __retain() here, and GC count from new Float64Array in wasm module
       wasm.__release(dataRef);
       wasm.__release(resultRef);
       
-      console.log(arrForces)
+      console.log('arrBodies, arrForces', msg. arrBodies, arrForces)
+      // Message results back to main thread.  see nBodySimulation.js this.worker.onmessage
       return this.postMessage({
         purpose: 'nBodyForces', 
         arrForces
