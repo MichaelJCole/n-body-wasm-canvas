@@ -10,6 +10,7 @@
  (type $FUNCSIG$viiddddd (func (param i32 i32 f64 f64 f64 f64 f64)))
  (type $FUNCSIG$dii (func (param i32 i32) (result f64)))
  (type $FUNCSIG$idddddddd (func (param f64 f64 f64 f64 f64 f64 f64 f64) (result i32)))
+ (type $FUNCSIG$id (func (param f64) (result i32)))
  (type $FUNCSIG$viid (func (param i32 i32 f64)))
  (import "env" "abort" (func $~lib/builtins/abort (param i32 i32 i32 i32)))
  (import "env" "trace" (func $~lib/builtins/trace (param i32 i32 f64 f64 f64 f64 f64)))
@@ -3997,7 +3998,13 @@
   local.get $0
   return
  )
- (func $~lib/rt/tlsf/reallocateBlock (; 35 ;) (type $FUNCSIG$iiii) (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
+ (func $~lib/number/isNaN<f64> (; 35 ;) (type $FUNCSIG$id) (param $0 f64) (result i32)
+  local.get $0
+  local.get $0
+  f64.ne
+  return
+ )
+ (func $~lib/rt/tlsf/reallocateBlock (; 36 ;) (type $FUNCSIG$iiii) (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
   (local $4 i32)
   (local $5 i32)
   (local $3 i32)
@@ -4138,7 +4145,7 @@
   local.get $8
   return
  )
- (func $~lib/rt/tlsf/__realloc (; 36 ;) (type $FUNCSIG$iii) (param $0 i32) (param $1 i32) (result i32)
+ (func $~lib/rt/tlsf/__realloc (; 37 ;) (type $FUNCSIG$iii) (param $0 i32) (param $1 i32) (result i32)
   (local $9 i32)
   global.get $~lib/rt/tlsf/ROOT
   i32.eqz
@@ -4183,7 +4190,7 @@
   i32.add
   return
  )
- (func $~lib/array/ensureSize (; 37 ;) (type $FUNCSIG$viii) (param $0 i32) (param $1 i32) (param $2 i32)
+ (func $~lib/array/ensureSize (; 38 ;) (type $FUNCSIG$viii) (param $0 i32) (param $1 i32) (param $2 i32)
   (local $6 i32)
   (local $3 i32)
   (local $5 i32)
@@ -4248,7 +4255,7 @@
    i32.store offset=8
   end
  )
- (func $~lib/array/Array<f64>#__unchecked_set (; 38 ;) (type $FUNCSIG$viid) (param $0 i32) (param $1 i32) (param $2 f64)
+ (func $~lib/array/Array<f64>#__unchecked_set (; 39 ;) (type $FUNCSIG$viid) (param $0 i32) (param $1 i32) (param $2 f64)
   local.get $0
   i32.load offset=4
   local.get $1
@@ -4258,7 +4265,7 @@
   local.get $2
   f64.store
  )
- (func $~lib/array/Array<f64>#__set (; 39 ;) (type $FUNCSIG$viid) (param $0 i32) (param $1 i32) (param $2 f64)
+ (func $~lib/array/Array<f64>#__set (; 40 ;) (type $FUNCSIG$viid) (param $0 i32) (param $1 i32) (param $2 f64)
   (local $3 i32)
   local.get $0
   i32.load offset=12
@@ -4284,12 +4291,15 @@
    i32.store offset=12
   end
  )
- (func $nBodyForces/twoBodyForces (; 40 ;) (type $FUNCSIG$idddddddd) (param $0 f64) (param $1 f64) (param $2 f64) (param $3 f64) (param $4 f64) (param $5 f64) (param $6 f64) (param $7 f64) (result i32)
-  (local $12 i32)
+ (func $nBodyForces/twoBodyForces (; 41 ;) (type $FUNCSIG$idddddddd) (param $0 f64) (param $1 f64) (param $2 f64) (param $3 f64) (param $4 f64) (param $5 f64) (param $6 f64) (param $7 f64) (result i32)
+  (local $12 f64)
+  (local $14 i32)
   (local $8 f64)
   (local $9 f64)
   (local $10 f64)
   (local $11 f64)
+  (local $13 f64)
+  (local $53 i32)
   f64.const 6.674e-11
   local.get $3
   f64.mul
@@ -4308,38 +4318,75 @@
   local.get $2
   f64.sub
   local.set $11
+  local.get $9
+  local.get $9
+  f64.mul
+  local.get $10
+  local.get $10
+  f64.mul
+  f64.add
+  local.get $11
+  local.get $11
+  f64.mul
+  f64.add
+  local.set $12
+  local.get $12
+  f64.sqrt
+  local.set $12
+  local.get $12
+  local.get $12
+  f64.mul
+  local.get $12
+  f64.mul
+  local.set $13
   i32.const 0
   i32.const 3
   call $~lib/array/Array<f64>#constructor
-  local.set $12
+  local.set $14
   local.get $12
+  call $~lib/number/isNaN<f64>
+  if
+   i32.const 1
+   local.set $53
+  else
+   local.get $12
+   f64.const 0
+   f64.eq
+   local.set $53
+  end
+  local.get $53
+  if
+   local.get $14
+   return
+  end
+  local.get $14
   i32.const 0
   local.get $8
   local.get $9
-  local.get $9
   f64.mul
+  local.get $13
   f64.div
   call $~lib/array/Array<f64>#__set
-  local.get $12
+  local.get $14
   i32.const 1
   local.get $8
   local.get $10
-  local.get $10
   f64.mul
+  local.get $13
   f64.div
   call $~lib/array/Array<f64>#__set
-  local.get $12
+  local.get $14
   i32.const 2
   local.get $8
   local.get $11
-  local.get $11
   f64.mul
+  local.get $13
   f64.div
   call $~lib/array/Array<f64>#__set
-  local.get $12
+  local.get $14
   return
  )
- (func $~lib/array/Array<f64>#__unchecked_get (; 41 ;) (type $FUNCSIG$dii) (param $0 i32) (param $1 i32) (result f64)
+ (func $~lib/array/Array<f64>#__unchecked_get (; 42 ;) (type $FUNCSIG$dii) (param $0 i32) (param $1 i32) (result f64)
   local.get $0
   i32.load offset=4
   local.get $1
@@ -4349,7 +4396,7 @@
   f64.load
   return
  )
- (func $~lib/array/Array<f64>#__get (; 42 ;) (type $FUNCSIG$dii) (param $0 i32) (param $1 i32) (result f64)
+ (func $~lib/array/Array<f64>#__get (; 43 ;) (type $FUNCSIG$dii) (param $0 i32) (param $1 i32) (result f64)
   local.get $1
   local.get $0
   i32.load offset=8
@@ -4369,7 +4416,7 @@
   call $~lib/array/Array<f64>#__unchecked_get
   return
  )
- (func $~lib/typedarray/Float64Array#__set (; 43 ;) (type $FUNCSIG$viid) (param $0 i32) (param $1 i32) (param $2 f64)
+ (func $~lib/typedarray/Float64Array#__set (; 44 ;) (type $FUNCSIG$viid) (param $0 i32) (param $1 i32) (param $2 f64)
   local.get $1
   local.get $0
   i32.load offset=8
@@ -4393,7 +4440,7 @@
   local.get $2
   f64.store
  )
- (func $nBodyForces/nBodyForces (; 44 ;) (type $FUNCSIG$ii) (param $0 i32) (result i32)
+ (func $nBodyForces/nBodyForces (; 45 ;) (type $FUNCSIG$ii) (param $0 i32) (result i32)
   (local $2 i32)
   (local $3 i32)
   (local $7 i32)
@@ -4608,10 +4655,10 @@
   local.get $2
   return
  )
- (func $~lib/array/Array<f64>#__visit_impl (; 45 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
+ (func $~lib/array/Array<f64>#__visit_impl (; 46 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
   nop
  )
- (func $~lib/rt/pure/__visit (; 46 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
+ (func $~lib/rt/pure/__visit (; 47 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
   (local $2 i32)
   (local $3 i32)
   local.get $0
@@ -4741,7 +4788,7 @@
    end
   end
  )
- (func $~lib/rt/__visit_members (; 47 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
+ (func $~lib/rt/__visit_members (; 48 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
   (local $2 i32)
   block $switch$1$default
    block $switch$1$case$6
@@ -4758,10 +4805,10 @@
   end
   unreachable
  )
- (func $null (; 48 ;) (type $FUNCSIG$v)
+ (func $null (; 49 ;) (type $FUNCSIG$v)
   nop
  )
- (func $__wasm_ctz_i32 (; 49 ;) (param $var$0 i32) (result i32)
+ (func $__wasm_ctz_i32 (; 50 ;) (param $var$0 i32) (result i32)
   local.get $var$0
   if
    i32.const 31

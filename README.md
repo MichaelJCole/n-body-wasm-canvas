@@ -22,43 +22,33 @@ If you have Node.js >= 8 installed:
 # Install all the dev packages
 npm install
 
-# Build the Wasm using assemblyBuild.js
+# Build the Wasm using assemblyBuild.js and rollup.config.js
 npm run build
 
 # Serve the app
 npm run serve
 ```
 
+# Build Tools
 
-# Design
+I'm always evaluating alternative tools to see what's coming in the future of technology.  
+
+`gulpfile.js` builds the AssemblyScript to WebAssembly output.  
+
+- Why gulp?  WebAssembly's [AssemblyScript starter project](https://webassembly.studio) uses it.
+
+`rollup.config.js` file builds the two js files needed for the web application: `main.js` and `workerWasm.js`.
+
+- Why so complicated?  Memory management is still a thing.  I spent a fair amount of time on this project trying to get it to work without a build toolchange.  Passing arrays to/from AssemblyScript is dumb-hard (the unsatisfying kind of hard), and the best solution is to use [AssemblyScript's loader](https://docs.assemblyscript.org/basics/loader), which is going to require a require().
+
+- Why [rollup](https://rollupjs.org/guide/en/)?  Facebook has done an amazing job sponsoring and shaping the open source and web development toolchain with `yarn` and `webpack`.  I wanted something lighter-weight than `webpack` so tried rollup.  Rollup was trivial to configure a 2nd entry point and requires almost no attention.  
+
+
+# Architecture and Design
 
 This is a simulation hosted in a web browser, and expands on an AssemblyScript starter project from [https://webassembly.studio](https://webassembly.studio) 
 
-Files:
-```
-index.html               -  sets up the Canvas and UI, then runs main.js.
-main.js                  -  Entry point.  Creates a nBodySystem(), passing a nBodyVisCanvas()
 
-nBodyVisCanvas.js        -  Simulation visualizers
-nBodyVisPrettyPrint.js
-
-nBodySystem.js           -  Simulation loop and loads a nBodyForces implementation
-worker.js                -  Web worker to run our calculations in separate thread
-
-gulpfile.js              -  Gulpfile to process assembly/*
-assembly/nBodyForces.ts  -  AssemblyScript code to calculate forces.  Transpiled to out/*
-
-out/nBodyForces.wasm     -  nBodyForces.ts --binaryen-transpiler--> wasm
-out/nBodyForces.asc.js   -  nBodyForces.ts --binaryen-transpiler--> js
-out/nBodyForces.tsc.js   -  nBodyForces.ts --typescript-transpiler--> js
-
-node_modules             -  Node.js stuff
-package.json             -  Package versions and npm run commands
-package-lock.json        -  Future proofs package installation
-README.md                -  Turtles all the way down
-```
-
-Architecture:
 ```
 UI THREAD                /          WORKER THREAD
    
@@ -68,9 +58,40 @@ index.html
   |
 main.js
   |
-nBodySystem.js-----(web worker------worker.js
+nBodySystem.js-----(web worker------workerWasm.js
   |              message passing)     |
-(draws to)                          out/nBodyForces.wasm
+(draws to)                          nBodyForces.wasm
   |
 nBodyVisCanvas.js
+```
+
+# Implementation
+
+Files:
+```
+src/index.html               -  sets up the Canvas and UI, then runs main.js.
+
+rollup.config.js             -  Build file for main.js and workerWasm.js
+
+src/main.js                  -  Entry point.  Creates a nBodySystem(), passing a nBodyVisCanvas()
+
+src/nBodyVisCanvas.js        -  Simulation visualizers
+src/nBodyVisPrettyPrint.js                                         <===  ES6 Classes are standard and fun
+
+src/nBodySystem.js           -  Simulation loop and loads a nBodyForces implementation
+src/workerWasm.js            -  Web worker to calculate in separate thread  <=== WebAssembly and Web Workers
+
+gulpfile.js                  -  Gulpfile to process assembly/*
+
+src/assembly/nBodyForces.ts  -  AssemblyScript code to calculate forces.        <===  Sciency!
+
+dist/assembly/nBodyForces.wasm   - nBodyForces.ts --binaryen-transpiler--> wasm
+dist/assembly/nBodyForces.asc.js - nBodyForces.ts --binaryen-transpiler--> js    <=== doesn't work :-(  see gulpfile
+dist/assembly/nBodyForces.tsc.js - nBodyForces.ts --typescript-transpiler--> js
+dist/assembly/nBodyForces.wat    - An "assembly code" text view of the compiled module  <=== Nerd-core!
+
+node_modules                 -  Node.js stuff
+package.json                 -  Package versions and npm run commands
+package-lock.json            -  Future proofs package installation
+README.md                    -  Turtles all the way down
 ```

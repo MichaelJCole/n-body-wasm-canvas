@@ -23,39 +23,75 @@ export const bodySize: i32 = 4
 export const forceSize: i32 = 3
 
 /**
- * Calculate the forces of Gravity (G) on two bodies.  Return this force as a 2d-vector
  * 
- * Exporting your wasm functions make them easier to debug.
  * 
- * @param x0 - Body0 x
- * @param y0 - Body0 y
- * @param y0 - Body0 z
- * @param m0 - Body0 mass
- * @param x1 - Body1 x
- * @param y1 - Body1 y
- * @param y1 - Body1 z
- * @param m1 - Body1 mass
- * @return - [fx, fy]
+ * Science for the win!  Calculate the forces of Gravity (G) on two bodies.  Return as a 3-force vector (x, y, z)
+ * 
+ * Sometimes, the force of gravity is:  Fg  =  G * m0 * m1 * d / d^2
+ * 
+ * Today, we're using better-gravity, because better-gravity can calculate force vectors without polar math (sin, cos, tan)
+ * 
+ * If that sounds like bullshit, it is, but it's not wrong:
+ * - https://physics.stackexchange.com/questions/17285/split-gravitational-force-into-x-y-and-z-componenets
+ * - https://stackoverflow.com/questions/57966211/calcuate-force-of-gravity-on-2-bodies-in-3d-space?noredirect=1#comment102344210_57966211
+ * 
+ * Given:
+ * - dx = bodyB.x - bodyA.x
+ * - r = sqrt ( dx + dy + dz) = straight line distance between objects    
+ * - G = gravitational constant
+ * - mA, mB = mass of objects
+ * 
+ * We solve for the change in the x,y,z coordinates
+ * 
+ * - dr = the change in distance (we can project to x,y,z coords) 
+ * - dr = (dx, dy, dz) We can split to a 3-force vector and solve separately for each
+ * 
+ * Force of Better-Gravity for x:
+ * 
+ * - Fbg = the change in force applied by gravity over a time
+ * - Fbg = G * mA * mB * dr / r^3   // dr projects to dx, dy, dz
+ * - Fx = Gmm * dx / r3 
+ * - Fy = Gmm * dy / r3 
+ * - Fz = Gmm * dz / r3 
+ * 
+ * @param xA - BodyA x
+ * @param yA - BodyA y
+ * @param zA - BodyA z
+ * @param mA - BodyA mass
+ * @param xB - BodyB x
+ * @param yB - BodyB y
+ * @param zB - BodyB z
+ * @param mB - BodyB mass
+ * @return - [fx, fy, fz]
  */
-function twoBodyForces(x0: f64, y0: f64, z0: f64, m0: f64, x1: f64, y1: f64, z1: f64, m1: f64): f64[] {
-  // Science for the win!
+function twoBodyForces(xA: f64, yA: f64, zA: f64, mA: f64, xB: f64, yB: f64, zB: f64, mB: f64): f64[] {
+  /*
+      dx = xB - xA
+      r3 = sqrt(dx+dy+dz) ^3 = straight line distance between objects, cubed
+      Gmm = G * mA * mB;
+      Fx = Gmm * dx / r3 
+      Fy = Gmm * dy / r3 
+      Fz = Gmm * dz / r3 
+   */
 
-  // F  =  G * m0 * m1 / d^2
-  // F  =  Gmm / d * d
-  const Gmm = G * m0 * m1;
-
-  // We calculate distance in the X and Y directions, so it's easier to add the forces together.
-  const dx: f64 = x1 - x0;
-  const dy: f64 = y1 - y0;
-  const dz: f64 = z1 - z0;
-
-  //trace("Gmm, dx, dy, dz", 4, Gmm, dx, dy, dz)
+  // Values used in each x,y,z calculation
+  const Gmm = G * mA * mB
+  const dx: f64 = xB - xA
+  const dy: f64 = yB - yA
+  const dz: f64 = zB - zA
+  const r: f64 = Math.sqrt(dx * dx + dy * dy + dz * dz)
+  const r3: f64 = r * r * r
 
   // Return calculated foce vector
   const ret: f64[] = new Array<f64>(3)
-  ret[0] = Gmm / (dx * dx);
-  ret[1] = Gmm / (dy * dy);
-  ret[2] = Gmm / (dz * dz);
+
+  // The best not-a-number number is zero thank you.  Two bodies in the same x,y,z
+  if (isNaN(r) || r === 0) return ret
+
+  // Calculate each part of the vector
+  ret[0] = Gmm * dx / r3
+  ret[1] = Gmm * dy / r3
+  ret[2] = Gmm * dz / r3
 
   //trace("ret", 3, ret[0], ret[1], ret[2])
   return ret;
@@ -82,13 +118,11 @@ function twoBodyForces(x0: f64, y0: f64, z0: f64, m0: f64, x1: f64, y1: f64, z1:
  * 
  * Return 0 on success
  */
-export function nBodyForces(arrBodies: Float64Array): Float64Array { 
+export function nBodyForces(arrBodies: Float64Array): Float64Array {
 
   // Check inputs
 
-  //trace("nBodyForces.length in", 1, arrBodies.length)
   const numBodies: i32 = arrBodies.length / bodySize
-  //trace("numBodies", 1, numBodies)
   if (arrBodies.length % bodySize !== 0) trace("INVALID nBodyForces parameter.  Chaos ensues...")
 
   // Create result array.  This should be garbage collected later:  https://docs.assemblyscript.org/details/memory#dynamic-memory
@@ -98,19 +132,16 @@ export function nBodyForces(arrBodies: Float64Array): Float64Array {
   // For all bodies:
 
   for (let i: i32 = 0; i < numBodies; i++) {
-    //trace("bodyI", 1, i)
     // Given body i: pair with every body[j] where j > i
     for (let j: i32 = i + 1; j < numBodies; j++) {
-      //trace("bodyJ", 1, j)
       // Calculate the force the bodies apply to one another
       const bI: i32 = i * bodySize
       const bJ: i32 = j * bodySize
-      
+
       const f: f64[] = twoBodyForces(
-        arrBodies[bI], arrBodies[bI+1], arrBodies[bI+2], arrBodies[bI+3], // x,y,z,m
-        arrBodies[bJ], arrBodies[bJ+1], arrBodies[bJ+2], arrBodies[bJ+3], // x,y,z,m
+        arrBodies[bI], arrBodies[bI + 1], arrBodies[bI + 2], arrBodies[bI + 3], // x,y,z,m
+        arrBodies[bJ], arrBodies[bJ + 1], arrBodies[bJ + 2], arrBodies[bJ + 3], // x,y,z,m
       )
-      //trace("f", 3, f[0], f[1], f[2])
 
       // Add this pair's force on one another to their total forces applied x,y,z
 
@@ -118,23 +149,18 @@ export function nBodyForces(arrBodies: Float64Array): Float64Array {
       const fJ: i32 = j * forceSize
 
       // body0
-      //trace("update arrForces[bI]: ", 4, bI, arrForces[fI], arrForces[fI+1], arrForces[fI+2]) // x,y,z
       arrForces[fI] = arrForces[fI] + f[0]
-      arrForces[fI+1] = arrForces[fI+1] + f[1]
-      arrForces[fI+2] = arrForces[fI+2] + f[2]
-      //trace("update arrForces[bI]: ", 4, bI, arrForces[fI], arrForces[fI+1], arrForces[fI+2]) // x,y,z
+      arrForces[fI + 1] = arrForces[fI + 1] + f[1]
+      arrForces[fI + 2] = arrForces[fI + 2] + f[2]
 
       // body1    
-      //trace("update arrForces[bJ]: ", 4, bI, arrForces[fI], arrForces[fI+1], arrForces[fI+2]) // x,y,z
       arrForces[fJ] = arrForces[fJ] - f[0]   // apply forces in opposite direction
-      arrForces[fJ+1] = arrForces[fJ+1] - f[1]    
-      arrForces[fJ+2] = arrForces[fJ+2] - f[2]
-      //trace("update arrForces[bJ]: ", 4, bJ, arrForces[fJ], arrForces[fJ+1], arrForces[fJ+2]) // x,y,z
-      //trace('done j', 1, j)
+      arrForces[fJ + 1] = arrForces[fJ + 1] - f[1]
+      arrForces[fJ + 2] = arrForces[fJ + 2] - f[2]
     }
-    //trace('done i', 1, i)
   }
   // For each body, return the summ of forces all other bodies applied to it.
-  //trace("nBodyForces returns (b0x, b0y, b0z, b1z): ", 4, arrForces[0], arrForces[1], arrForces[2], arrForces[3]) // x,y,z
+  // If you'd like to debug wasm, you can use trace or the log functions described in workerWasm when we initialized
+  // E.g. trace("nBodyForces returns (b0x, b0y, b0z, b1z): ", 4, arrForces[0], arrForces[1], arrForces[2], arrForces[3]) // x,y,z
   return arrForces  // success
 }

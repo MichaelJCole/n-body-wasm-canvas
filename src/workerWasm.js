@@ -64,14 +64,13 @@ this.onmessage = function (evt) {
       const dataRef = wasm.__retain(wasm.__allocArray(wasm.FLOAT64ARRAY_ID, msg.arrBodies));
       // Do the calculations in this thread synchronously
       const resultRef = wasm.nBodyForces(dataRef);
-      // Copy result array from the wasm instance
+      // Copy result array from the wasm instance to our javascript runtime
       const arrForces = wasm.__getFloat64Array(resultRef);
 
       // Decrease the GC count on dataRef from __retain() here, and GC count from new Float64Array in wasm module
       wasm.__release(dataRef);
       wasm.__release(resultRef);
       
-      console.log('arrBodies, arrForces', msg. arrBodies, arrForces)
       // Message results back to main thread.  see nBodySimulation.js this.worker.onmessage
       return this.postMessage({
         purpose: 'nBodyForces', 

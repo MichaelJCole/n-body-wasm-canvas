@@ -1414,6 +1414,11 @@ function asmFunc(global, env, buffer) {
   return $0 | 0;
  }
  
+ function $lib_number_isNaN_f64_($0) {
+  $0 = +$0;
+  return $0 != $0 | 0;
+ }
+ 
  function $lib_rt_tlsf_reallocateBlock($0, $1, $2) {
   $0 = $0 | 0;
   $1 = $1 | 0;
@@ -1528,16 +1533,27 @@ function asmFunc(global, env, buffer) {
   $5 = +$5;
   $6 = +$6;
   $7 = +$7;
-  var $12 = 0, $8 = 0.0, $9 = 0.0, $10 = 0.0, $11 = 0.0;
+  var $12 = 0.0, $14 = 0, $8 = 0.0, $9 = 0.0, $10 = 0.0, $11 = 0.0, $13 = 0.0, $53 = 0;
   $8 = 6.674e-11 * $3 * $7;
   $9 = $4 - $0;
   $10 = $5 - $1;
   $11 = $6 - $2;
-  $12 = $lib_array_Array_f64__constructor(0 | 0, 3 | 0) | 0;
-  $lib_array_Array_f64____set($12 | 0, 0 | 0, +($8 / ($9 * $9)));
-  $lib_array_Array_f64____set($12 | 0, 1 | 0, +($8 / ($10 * $10)));
-  $lib_array_Array_f64____set($12 | 0, 2 | 0, +($8 / ($11 * $11)));
-  return $12 | 0;
+  $12 = $9 * $9 + $10 * $10 + $11 * $11;
+  $12 = Math_sqrt($12);
+  $13 = $12 * $12 * $12;
+  $14 = $lib_array_Array_f64__constructor(0 | 0, 3 | 0) | 0;
+  if ($lib_number_isNaN_f64_(+$12) | 0) {
+   $53 = 1
+  } else {
+   $53 = $12 == 0.0
+  }
+  if ($53) {
+   return $14 | 0
+  }
+  $lib_array_Array_f64____set($14 | 0, 0 | 0, +($8 * $9 / $13));
+  $lib_array_Array_f64____set($14 | 0, 1 | 0, +($8 * $10 / $13));
+  $lib_array_Array_f64____set($14 | 0, 2 | 0, +($8 * $11 / $13));
+  return $14 | 0;
  }
  
  function $lib_array_Array_f64____unchecked_get($0, $1) {

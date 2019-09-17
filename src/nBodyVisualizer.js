@@ -30,7 +30,11 @@ export class nBodyVisPrettyPrint extends nBodyVisualizer {
   resize() {}
 
   paint(bodies) {
-    this.htmlElement.innerHTML = JSON.stringify(bodies, null, 2)
+    let text = ''
+    bodies.forEach( body => {
+      text += `<br>${body.name} {<br>  x:${body.x.toPrecision(2)}<br>  y:${body.y.toPrecision(2)}<br>  z:${body.z.toPrecision(2)}<br>  mass:${body.mass.toPrecision(2)})<br>}<br>${body.drawSize}`
+    })
+    if (this.htmlElement) this.htmlElement.innerHTML = text
   }
 }
 
@@ -47,6 +51,7 @@ export class nBodyVisCanvas extends nBodyVisualizer {
 
   // If the window is resized, we need to resize our visualization
   resize() {
+    if (!this.htmlElement) return
     this.sizeX = this.htmlElement.offsetWidth
     this.sizeY = this.htmlElement.offsetHeight
     this.htmlElement.width = this.sizeX
@@ -55,36 +60,44 @@ export class nBodyVisCanvas extends nBodyVisualizer {
   }
 
   // Paint on the canvas
-  paint() {
+  paint(bodies) {
+    if (!this.htmlElement) return
     // We need to convert our 3d float universe to a 2d pixel visualization
     // calculate shift and scale
-    const bounds = this.bounds()
+    const bounds = this.bounds(bodies)
     const shiftX = bounds.xMin
     const shiftY = bounds.yMin
-    const scaleX = this.sizeX / (bounds.xMax - bounds.xMin)
-    const scaleY = this.sizeY / (bounds.yMax - bounds.yMin)
+    const twoPie = 2 * Math.PI
+    
+    let scaleX = this.sizeX / (bounds.xMax - bounds.xMin)
+    let scaleY = this.sizeY / (bounds.yMax - bounds.yMin)
+    if (isNaN(scaleX) || !isFinite(scaleX) || scaleX < 15) scaleX = 15
+    if (isNaN(scaleY) || !isFinite(scaleY) || scaleY < 15) scaleY = 15
 
     // Begin Draw
-    this.vis.clearRect(0, 0, visX, visY)
-    const colors = ['#ff0000', '#0000ff', '#00ff00']
-    this.bodies.forEach((body, index) => {
-      // Fancy colors are nice
-      this.vis.fillStyle = colors[index % 3]
-      // Draw on canvas
+    this.vis.clearRect(0, 0, this.vis.canvas.width, this.vis.canvas.height)
+    bodies.forEach((body, index) => {
+      // Center
       const drawX = (body.x - shiftX) * scaleX
-      const drayY = (body.y - shiftY) * scaleY
-      this.vis.fillRect(x-10, y-10, 20, 20)  // draw 20x20 body
+      const drawY = (body.y - shiftY) * scaleY
+      // Draw on canvas
+      this.vis.beginPath();
+      this.vis.arc(drawX, drawY, body.drawSize, 0, twoPie, false);
+      this.vis.fillStyle = body.color || "#aaa"
+      this.vis.fill();
     });
   }
 
   // Because we draw the 3d space in 2d from the top, we ignore z
-  bounds() {
-    const ret = { xMin: 0, xMax: 0, yMin: 0, yMax: 0 }
-    this.bodies.forEach(body => {
+  bounds(bodies) {
+    const ret = { xMin: 0, xMax: 0, yMin: 0, yMax: 0, zMin: 0, zMax: 0 }
+    bodies.forEach(body => {
       if (ret.xMin > body.x) ret.xMin = body.x
       if (ret.xMax < body.x) ret.xMax = body.x
       if (ret.yMin > body.y) ret.yMin = body.y
       if (ret.yMax < body.y) ret.yMax = body.y
+      if (ret.zMin > body.z) ret.zMin = body.z
+      if (ret.zMax < body.z) ret.zMax = body.z
     })
     return ret
   }

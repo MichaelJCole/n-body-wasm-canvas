@@ -26,11 +26,23 @@
  * No collisions or splody are implemented.
  */
 export class Body {
-  constructor(x, y, z, mass, pX, pY, pZ) {
+  constructor(name, color, x, y, z, mass, vX, vY, vZ) {
+    this.name = name
+    this.color = color
     this.x = x
     this.y = y
     this.z = z
     this.mass = mass
+    
+    this.vX = vX || 0
+    this.vY = vY || 0
+    this.vZ = vZ || 0
+
+    this.forceX = 0
+    this.forceY = 0
+    this.forceZ = 0
+
+    this.drawSize = Math.min(   Math.max( Math.log10(mass), 1),   10)
   }
 }
 
@@ -44,7 +56,7 @@ export class nBodySimulator {
     this.setupWebWorker()
 
     // 1000 ms/s / 33 ms/frame = 30 frame/sec.  FIXME this could be replaced with requestAnimationFrame()
-    this.simulationSpeed = 2000
+    this.simulationSpeed = 33
 
     // Source of truth
     this.objBodies = []
@@ -55,6 +67,9 @@ export class nBodySimulator {
     // used to index arrForces
     this.forceSize = 3  // x,y,z
 
+    // Debris bounds.  see trimDebris().
+    this.debrisBounds = 12
+
     // Has the worker been setup?
     this.workerReady = false
     // Is the worker calculating
@@ -62,7 +77,6 @@ export class nBodySimulator {
 
     // Array of our visualizations
     this.visualizations = []
-
   }
 
   /**
@@ -98,6 +112,8 @@ export class nBodySimulator {
     } else {
       console.log(`Skipping calcuation:  WorkerReady: ${this.workerReady}   WorkerCalculating: ${this.workerCalculating}`)
     }
+    // Remove any "debris" that has traveled out of bounds - this is for the button
+    this.trimDebris()
 
     // Now Update forces.  Reuse old forces if worker is already busy calculating.
     this.applyForces()
@@ -142,6 +158,22 @@ export class nBodySimulator {
   }
 
   /**
+   * Trim debris.  We let the player/user throw random bits into the universe for fun.
+   * But fun means watching it fly off, not the vis camera fly around.
+   * So we remove stuff that's gotten out of bounds
+   */
+  trimDebris() {
+    this.objBodies = this.objBodies.filter( body => {
+      if (body.name !=="debris") return true
+      if (isNaN(body.x) || isNaN(body.y) || isNaN(body.z)) return false
+      if (body.x < -this.debrisBounds || body.x > this.debrisBounds) return false
+      if (body.y < -this.debrisBounds || body.y > this.debrisBounds) return false
+      if (body.z < -this.debrisBounds || body.z > this.debrisBounds) return false
+      return true
+    })
+  }
+
+  /**
    * Apply those forces.  Yes, this could be moved out of the UI thread,
    * but passing objects across Wasm boundaries is dumb-hard - the kind of hard that is neither fun nor profitable.
    * 
@@ -174,24 +206,24 @@ export class nBodySimulator {
    */
   applyForces() {
     this.objBodies.forEach( (body, i) => {
+
+      if (body.mass === 0 || !this.arrForces) return // 0 mass bodies are used to position the camera min viewin the canvas visualizer.
+
       // Capture forces
       body.forceX = this.arrForces[i * this.forceSize + 0]
       body.forceY = this.arrForces[i * this.forceSize + 1]
       body.forceZ = this.arrForces[i * this.forceSize + 2]
-      
-      // Convert to velocity vectors
-      // body.vX = body.vX + body.forceX / body.mass
-      body.vX = body.vX + body.forceX / body.mass  // We could remove mass in nBodyForces.ts and just send velocities, but I'm super bored with this project already.
+
+      // Convert to velocity.  We could remove mass in nBodyForces.ts and just send velocities, but I'm moving this project to the done pile.
+      body.vX = body.vX + body.forceX / body.mass
       body.vY = body.vY + body.forceY / body.mass  
       body.vZ = body.vZ + body.forceZ / body.mass  
 
       // Update position from velocity
-      // body.x = body.x + body.vX
-      //body.x = body.x + body.vX
-      //body.y = body.y + body.vY
-      //body.z = body.z + body.vZ
+      body.x = body.x + body.vX
+      body.y = body.y + body.vY
+      body.z = body.z + body.vZ
     })
-    //debugger
   }
 
   /**
