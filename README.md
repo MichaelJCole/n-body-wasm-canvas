@@ -69,7 +69,7 @@ nBodySystem.js-----(web worker------workerWasm.js
   |              message passing)     |
 (draws to)                          nBodyForces.wasm
   |
-nBodyVisCanvas.js
+nBodyVisualizer.js
 ```
 
 # Implementation
@@ -82,7 +82,7 @@ rollup.config.js             -  Build file for main.js and workerWasm.js
 
 src/main.js                  -  Entry point.  Creates a nBodySystem(), passing a nBodyVisCanvas()
 
-src/nBodyVisCanvas.js        -  Simulation visualizers   <===  ES6 Classes are standard and fun
+src/nBodyVisualizer.js       -  Simulation visualizers   <===  ES6 Classes are standard and fun
 
 src/nBodySystem.js           -  Simulation loop and loads a nBodyForces implementation
 src/workerWasm.js            -  Web worker to calculate in separate thread     <=== WebAssembly and Web Workers
@@ -91,10 +91,8 @@ gulpfile.js                  -  Gulpfile to process assembly/*
 
 src/assembly/nBodyForces.ts  -  AssemblyScript code to calculate forces.       <===  Sciency!
 
-dist/assembly/nBodyForces.wasm   - nBodyForces.ts --binaryen-transpiler--> wasm
-dist/assembly/nBodyForces.asc.js - nBodyForces.ts --binaryen-transpiler--> js
-dist/assembly/nBodyForces.tsc.js - nBodyForces.ts --typescript-transpiler--> js (doesn't work.  See gulpfile.js)
-dist/assembly/nBodyForces.wat    - An "assembly code" text view of the compiled module  <=== Nerd-core!
+dist/assembly/nBodyForces.wasm - nBodyForces.ts --binaryen-transpiler--> wasm
+dist/assembly/nBodyForces.wat  - An "assembly code" text view of the compiled module  <=== Nerd-core.
 
 node_modules                 -  Node.js stuff
 package.json                 -  Package versions and npm run commands
