@@ -4,9 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <style>
-    html,
-    body,
-    #visCanvas {
+    html, body, #visCanvas {
       margin: 0;
       padding: 0;
       background-color: #1F1F1F;
@@ -14,59 +12,36 @@
       width: 100vw;
       height: 100vh;
     }
-
     #hud {
-      color: white;
-      background-color: rgba(0, 0, 200, 0.01);
+      background-color: rgba(0,0,200,0.3);
       position: absolute;
       top: 10px;
       left: 10px;
     }
-
-    #hud a {
-      color: white
-    }
-
     #controls {
       color: white;
     }
-
-    #controls button {
+    #controls input {
       color: white;
       background-color: green;
     }
-
     #visPrettyPrint {
       color: white;
-      min-width: 310px;
+      min-width: 200px;
     }
   </style>
 </head>
 
 <body>
   <canvas id="visCanvas"></canvas>
-
+  
   <div id="hud">
-    <a href="https://github.com/MichaelJCole/n-body-wasm-canvas" target="_blank">Demo: WebAssembly + Web Workers +
-      Canvas</a>
-    <br>
-    <br>This n-body system is CPU intensive, and
-    <br>uses new browser tech to push hardware limits.
-    <br>
-    <br><a href="https://github.com/MichaelJCole/n-body-wasm-canvas" target="_blank">Code and README.md</a>
-    <br>
-    <br>Solar system = stars + gas giants + "debris"</strong>
-    <br>
-    <br>This barely stable system: 1 star + 3 gas giants.
-    <br>
-    <br>Challenge: Can you add inner planets,
-    <br>without destabilizing your gas giants?
-    <br>
-    <br>
     <div id="controls">
-      <button id="mayhem">Throw Inner Planet Debris!</button>
+      <input id="more" type="button" value="More!" onclick="AddBody();" />
     </div>
-    <pre id="visPrettyPrint"></pre>
+    <pre id="visPrettyPrint">
+Hello there!  Click More!
+    </pre>
   </div>
 
   <script src="main.js"></script>
