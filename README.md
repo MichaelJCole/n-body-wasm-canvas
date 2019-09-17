@@ -1,5 +1,9 @@
 # n-body Wasm + Canvas Tech Demo
 
+[Live mobile-ready demo](https://michaeljcole.github.io/n-body-wasm-canvas/)
+
+[WebVR Version](https://michaeljcole.github.io/n-body-wasm-webvr/)
+
 Hello, this is a tech demo for:
 - [WebAssembly (Wasm)](https://webassembly.org/) - a high performance web binary that allows execution of other languages on the web (C, C++, Rust, etc)
 - [AssemblyScript](https://docs.assemblyscript.org/) - a TypeScript subset that compiles to Wasm
@@ -10,9 +14,12 @@ We'll apply this tech to the [n-body problem](https://en.wikipedia.org/wiki/N-bo
 
 Essentially we'll throw some debris in a 3d space and watch it go spinny.
 
-Why?  Anectodally this is a 60% performance boost on mobile.  Also, it's hard-core nerd-core.
+Why?  The n-body problem is CPU intensive.  
+We will code those computations in WebAssembly (high performance C/Rust/AssemblyScript code), then run them in a separate thread.  
 
-This is an engineering journal of sorts as I experiment with the tech.
+Anectodally this is a 60% performance boost on mobile.  It's also hard-core nerd-core.
+
+Welcome to the back-end of the front-end - high-performance computing in the browser.  This is crucial tech for the web as we move to WebVR.
 
 # Running Locally
 
@@ -75,19 +82,18 @@ rollup.config.js             -  Build file for main.js and workerWasm.js
 
 src/main.js                  -  Entry point.  Creates a nBodySystem(), passing a nBodyVisCanvas()
 
-src/nBodyVisCanvas.js        -  Simulation visualizers
-src/nBodyVisPrettyPrint.js                                         <===  ES6 Classes are standard and fun
+src/nBodyVisCanvas.js        -  Simulation visualizers   <===  ES6 Classes are standard and fun
 
 src/nBodySystem.js           -  Simulation loop and loads a nBodyForces implementation
-src/workerWasm.js            -  Web worker to calculate in separate thread  <=== WebAssembly and Web Workers
+src/workerWasm.js            -  Web worker to calculate in separate thread     <=== WebAssembly and Web Workers
 
 gulpfile.js                  -  Gulpfile to process assembly/*
 
-src/assembly/nBodyForces.ts  -  AssemblyScript code to calculate forces.        <===  Sciency!
+src/assembly/nBodyForces.ts  -  AssemblyScript code to calculate forces.       <===  Sciency!
 
 dist/assembly/nBodyForces.wasm   - nBodyForces.ts --binaryen-transpiler--> wasm
-dist/assembly/nBodyForces.asc.js - nBodyForces.ts --binaryen-transpiler--> js    <=== doesn't work :-(  see gulpfile
-dist/assembly/nBodyForces.tsc.js - nBodyForces.ts --typescript-transpiler--> js
+dist/assembly/nBodyForces.asc.js - nBodyForces.ts --binaryen-transpiler--> js
+dist/assembly/nBodyForces.tsc.js - nBodyForces.ts --typescript-transpiler--> js (doesn't work.  See gulpfile.js)
 dist/assembly/nBodyForces.wat    - An "assembly code" text view of the compiled module  <=== Nerd-core!
 
 node_modules                 -  Node.js stuff
@@ -95,3 +101,5 @@ package.json                 -  Package versions and npm run commands
 package-lock.json            -  Future proofs package installation
 README.md                    -  Turtles all the way down
 ```
+
+[Need code?  Have money?  Hire Me!](https://github.com/MichaelJCole/_code_resume)
