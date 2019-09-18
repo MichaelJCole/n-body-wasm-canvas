@@ -125,6 +125,10 @@ gulp.task('dev-serve', function() {
     .pipe(webserver({
       fallback: 'index.html',
       livereload: true,
-      open: true
-    }));
+      open: true,
+      middleware: (req, res, next) => {
+        if (req.originalUrl.endsWith('.wasm')) res.setHeader('Content-Type', 'application/wasm')
+        next()
+      }
+    }))
 })

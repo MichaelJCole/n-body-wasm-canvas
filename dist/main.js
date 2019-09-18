@@ -93,11 +93,18 @@
     }
   });
 
+  let prevR = {};
+  let prevP = {};
   AFRAME.registerComponent('rotation-reader', {
     tick: function () {
       // `this.el` is the element. `object3D` is the three.js object.
-      console.log(this.el.object3D.rotation);
-      console.log(this.el.object3D.position);
+      const newR = this.el.object3D.rotation;
+      if (prevR._x !== newR._x || prevR._y !== newR._y || prevR._z != newR._z) console.log(newR);
+      prevR = newR;
+
+      const newP = this.el.object3D.rotation;
+      if (prevP.x !== newP.x || prevP.y !== newP.y || prevP.z != newP.z) console.log(newP);
+      prevP = newP;
     }
   });
 
