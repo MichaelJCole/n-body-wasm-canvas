@@ -1,50 +1,31 @@
-<!DOCTYPE html>
+<!DOCTYPE>
+
 <html>
 
 <head>
-  <meta charset="utf-8" />
-  <style>
-    html, body, #visCanvas {
-      margin: 0;
-      padding: 0;
-      background-color: #1F1F1F;
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-    }
-    #hud {
-      background-color: rgba(0,0,200,0.3);
-      position: absolute;
-      top: 10px;
-      left: 10px;
-    }
-    #controls {
-      color: white;
-    }
-    #controls input {
-      color: white;
-      background-color: green;
-    }
-    #visPrettyPrint {
-      color: white;
-      min-width: 200px;
-    }
-  </style>
+  <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+  <script src="main.js"></script>
 </head>
 
-<body>
-  <canvas id="visCanvas"></canvas>
-  
-  <div id="hud">
-    <div id="controls">
-      <input id="more" type="button" value="More!" onclick="AddBody();" />
-    </div>
-    <pre id="visPrettyPrint">
-Hello there!  Click More!
-    </pre>
-  </div>
 
-  <script src="main.js"></script>
+<body>
+  <a-scene id="a">
+    <a-sky color="#111"></a-sky>
+
+    <a-entity geometry="primitive: circle; radius: 12"
+      material="side: double; color: grey; transparent: true; opacity: 0.1"></a-entity>
+
+    <a-entity id="a-bodies"></a-entity>
+
+
+    <a-entity id="rig" position="2 12 12" rotation="90 15 0">
+      <a-camera rotation-reader>
+        <a-cursor></a-cursor>
+      </a-camera>
+    </a-entity>
+
+  </a-scene>
+
 </body>
 
 </html>

@@ -1,16 +1,16 @@
 # n-body Wasm + Canvas Tech Demo
 
-[Live mobile-ready demo](https://michaeljcole.github.io/n-body-wasm-canvas/)
+[Live WebVR Demo](https://michaeljcole.github.io/n-body-wasm-webvr/)
 
-[WebVR Version](https://michaeljcole.github.io/n-body-wasm-webvr/)
+See also: [Mobile-ready 2d Canvas version](https://michaeljcole.github.io/n-body-wasm-canvas/)
 
 Hello, this is a tech demo for:
+- [WebVR with Aframe](https://aframe.io/docs/0.9.0/introduction/) - WebVR for visualization
+- [Web Workers](https://www.html5rocks.com/en/tutorials/workers/basics/) - a separate thread to run our calculations
 - [WebAssembly (Wasm)](https://webassembly.org/) - a high performance web binary that allows execution of other languages on the web (C, C++, Rust, etc)
-- [AssemblyScript](https://docs.assemblyscript.org/) - a TypeScript subset that compiles to Wasm
-- [Web Workers](https://www.html5rocks.com/en/tutorials/workers/basics/) - a separate thread to run our Wasm calculations
-- [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) - drawing API for visualization
+- [AssemblyScript](https://docs.assemblyscript.org/) - a TypeScript subset that compiles to high-performance Wasm
 
-We'll apply this tech to the [n-body problem](https://en.wikipedia.org/wiki/N-body_problem).  This is an astro-physics problem famous for being numerical (solved by a program) instead of analytical (solved by equations).
+We'll apply this tech to the [n-body problem](https://en.wikipedia.org/wiki/N-body_problem).  This is an astro-physics problem famous for being numerical (solved by a program) instead of analytical (solved by equations).  This is a fork of [my original Canvas](https://michaeljcole.github.io/n-body-wasm-canvas/) version.
 
 Essentially we'll throw some debris in a 3d space and watch it go spinny.
 
@@ -69,32 +69,32 @@ nBodySystem.js-----(web worker------workerWasm.js
   |              message passing)     |
 (draws to)                          nBodyForces.wasm
   |
-nBodyVisCanvas.js
+nBodyVisualizer.js
+  |
+Aframe.io WebVR library
 ```
 
 # Implementation
 
 Files:
 ```
-src/index.html               -  sets up the Canvas and UI, then runs main.js.
+src/index.html               -  sets up the WebVR scene and UI, then runs main.js.
 
 rollup.config.js             -  Build file for main.js and workerWasm.js
 
-src/main.js                  -  Entry point.  Creates a nBodySystem(), passing a nBodyVisCanvas()
+src/main.js                  -  Entry point.  Creates a nBodySystem(), passing a nBodyVisCanvas()  <== WebVr here
 
-src/nBodyVisCanvas.js        -  Simulation visualizers   <===  ES6 Classes are standard and fun
+src/nBodyVisualizer.js       -  Simulation visualizers   <===  ES6 Classes are standard and fun.  WebVr here
 
 src/nBodySystem.js           -  Simulation loop and loads a nBodyForces implementation
-src/workerWasm.js            -  Web worker to calculate in separate thread     <=== WebAssembly and Web Workers
+src/workerWasm.js            -  Web worker to calculate in separate thread       <=== WebAssembly and Web Workers
 
 gulpfile.js                  -  Gulpfile to process assembly/*
 
-src/assembly/nBodyForces.ts  -  AssemblyScript code to calculate forces.       <===  Sciency!
+src/assembly/nBodyForces.ts  -  AssemblyScript code to calculate forces.              <=== Sciency!
 
-dist/assembly/nBodyForces.wasm   - nBodyForces.ts --binaryen-transpiler--> wasm
-dist/assembly/nBodyForces.asc.js - nBodyForces.ts --binaryen-transpiler--> js
-dist/assembly/nBodyForces.tsc.js - nBodyForces.ts --typescript-transpiler--> js (doesn't work.  See gulpfile.js)
-dist/assembly/nBodyForces.wat    - An "assembly code" text view of the compiled module  <=== Nerd-core!
+dist/assembly/nBodyForces.wasm - nBodyForces.ts --binaryen-transpiler--> wasm
+dist/assembly/nBodyForces.wat  - An "assembly code" text view of the compiled module  <=== Nerd-core.
 
 node_modules                 -  Node.js stuff
 package.json                 -  Package versions and npm run commands

@@ -14,7 +14,6 @@ declare function logS(data: string): void
 
 export const FLOAT64ARRAY_ID = idof<Float64Array>();
 
-
 // Gravitational constant.  Any G could be used in a game.  This value is best for a scientific simulation.
 export const G: f64 = 6.674e-11;
 

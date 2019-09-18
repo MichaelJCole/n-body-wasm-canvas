@@ -110,8 +110,9 @@ export class nBodySimulator {
     if (this.ready()) {
       await this.calculateForces()
     } else {
-      console.log(`Skipping calcuation:  WorkerReady: ${this.workerReady}   WorkerCalculating: ${this.workerCalculating}`)
+      console.log(`Skipping calcuation becuase worker is busy:${this.workerCalculating} or not ready:${this.workerReady}`)
     }
+
     // Remove any "debris" that has traveled out of bounds - this is for the button
     this.trimDebris()
 
