@@ -25,14 +25,21 @@ export class nBodyVisualizer {
 export class nBodyVisPrettyPrint extends nBodyVisualizer {
   constructor(htmlElement) {
     super(htmlElement)
+    this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   }
 
   resize() {}
 
   paint(bodies) {
+    
+    if (this.isMobile) return
+
     let text = ''
+    function pretty(number) {
+      return number.toPrecision(2).padStart(10)
+    }
     bodies.forEach( body => {
-      text += `<br>${body.name} {<br>  x:${body.x.toPrecision(2)}<br>  y:${body.y.toPrecision(2)}<br>  z:${body.z.toPrecision(2)}<br>  mass:${body.mass.toPrecision(2)})<br>}<br>${body.drawSize}`
+      text += `<br>${body.name.padStart(12)} {  x:${pretty(body.x)}  y:${pretty(body.y)}  z:${pretty(body.z)}  mass:${pretty(body.mass)}) }`
     })
     if (this.htmlElement) this.htmlElement.innerHTML = text
   }

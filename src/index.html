@@ -17,7 +17,7 @@
 
     #hud {
       color: white;
-      background-color: rgba(0, 0, 200, 0.01);
+      #background-color: rgba(0, 0, 200, 0.01);
       position: absolute;
       top: 10px;
       left: 10px;
@@ -39,6 +39,7 @@
     #visPrettyPrint {
       color: white;
       min-width: 310px;
+      font-size: 10px;
     }
   </style>
 </head>
@@ -47,26 +48,20 @@
   <canvas id="visCanvas"></canvas>
 
   <div id="hud">
-    <a href="https://github.com/MichaelJCole/n-body-wasm-canvas" target="_blank">Demo: WebAssembly + Web Workers +
-      Canvas</a>
-    <br>
-    <br>This n-body system is CPU intensive, and
-    <br>uses new browser tech to push hardware limits.
-    <br>
-    <br><a href="https://github.com/MichaelJCole/n-body-wasm-canvas" target="_blank">Code and README.md</a>
-    <br>
-    <br>Solar system = stars + gas giants + "debris"</strong>
-    <br>
-    <br>This barely stable system: 1 star + 3 gas giants.
-    <br>
-    <br>Challenge: Can you add inner planets,
-    <br>without destabilizing your gas giants?
-    <br>
-    <br>
-    <div id="controls">
-      <button id="mayhem">Throw Inner Planet Debris!</button>
-    </div>
-    <pre id="visPrettyPrint"></pre>
+    <h4>Demo: WebAssembly + Web Workers + Canvas</h4>
+    <p>This "n-body problem" is CPU intensive, and this demo uses new browser tech to push hardware limits: WebAssembly,
+      AssemblyScript, Web Workers, and Canvas.</p>
+    <p>Solar system = stars + gas giants + "debris". Here is a barely stable star and 3 gas giants. Can you add inner
+      planets, without destabilizing your gas giants?
+      <div id="controls">
+        <button id="mayhem">Throw Inner Planet Debris!</button>
+        -
+        <a href="https://github.com/MichaelJCole/n-body-wasm-canvas" target="_blank">Code</a>
+        -
+        <a class="glow" href="https://michaeljcole.github.io/n-body-wasm-webvr/">WebVR (browser 3d) Version</a>
+      </div>
+
+      <pre id="visPrettyPrint"></pre>
   </div>
 
   <script src="main.js"></script>
