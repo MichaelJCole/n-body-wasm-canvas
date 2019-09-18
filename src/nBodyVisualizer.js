@@ -10,7 +10,7 @@ export class nBodyVisualizer {
     this.htmlElement = htmlElement
     this.resize()
 
-    this.scaleSize = 50 // divided into bodies drawSize.  drawSize is log10(mass)
+    this.scaleSize = 25 // divided into bodies drawSize.  drawSize is log10(mass)
   }
 
   resize() {}
@@ -24,9 +24,11 @@ export class nBodyVisualizer {
  * This is the WebVR visualizer.  It's responsible for painting and setting up the entire scene.
  */
 export class nBodyVisWebVR extends nBodyVisualizer {
-  constructor(htmlElement) {
+  constructor(htmlElement, sim) {
     // HTML Element is a-collection#a-bodies.
     super(htmlElement)
+    // We add these to the global namespace because this isn't the core problem we are trying to solve.
+    window.sim = sim
     this.nextId = 0
   }
 
@@ -45,9 +47,10 @@ export class nBodyVisWebVR extends nBodyVisualizer {
 
     // Loop through existing a-sim-bodies and remove any that are not in lookup - dropped debris
     const aSimBodies = document.querySelectorAll(".a-sim-body")
-    //console.log(aSimBodies);
     for (i = 0; i < aSimBodies.length; i++) {
-      //console.log(aSimBodies[i]) // if not found, delete!
+      if (!lookup[aSimBodies[i].id]) {  // if we don't find the scene's a-body in the lookup table of Body()s, 
+        aSimBodies[i].parentNode.removeChild(aSimBodies[i]); // remove the a-body from the scene
+      } 
     }
 
     // loop through sim bodies and upsert
@@ -62,7 +65,7 @@ export class nBodyVisWebVR extends nBodyVisualizer {
   id="${body.aframeId}"
   class="a-sim-body"
   dynamic-body 
-  ${ (body.name === "sun") ? "debris-listener" : ""} 
+  ${ (body.name === "star") ? "debris-listener event-set__enter='_event: mouseenter; color: green' event-set__leave='_event: mouseleave; color: yellow'" : ""} 
   position="${body.x} ${body.y} ${body.z}" 
   radius="${body.drawSize/this.scaleSize}" 
   color="${body.color}">
@@ -78,32 +81,18 @@ export class nBodyVisWebVR extends nBodyVisualizer {
 // Component to change to a sequential color on click.
 AFRAME.registerComponent('debris-listener', {
   init: function () {
+    const self = this
+    // Helper function
+    function rando(scale) {  return (Math.random()-.5) * scale }
     this.el.addEventListener('click', function (evt) {
-      var lastIndex = -1;
-      var COLORS = ['red', 'green', 'blue'];
-      this.el.addEventListener('click', function (evt) {
-        lastIndex = (lastIndex + 1) % COLORS.length;
-        this.setAttribute('material', 'color', COLORS[lastIndex]);
-        console.log('I was clicked at: ', evt.detail.intersection.point);
-      });
-    });
+      //console.log('I was clicked at: ', evt.detail.intersection.point);
+      for (let x=0; x<10; x++) {
+        window.sim.addBodyArgs("debris", "white", rando(10), rando(10), rando(10), 1, rando(.1), rando(.1), rando(.1))
+      }
+    })
   }
-});
+})
 
-let prevR = {}
-let prevP = {}
-AFRAME.registerComponent('rotation-reader', {
-  tick: function () {
-    // `this.el` is the element. `object3D` is the three.js object.
-    const newR = this.el.object3D.rotation
-    if (prevR._x !== newR._x || prevR._y !== newR._y || prevR._z != newR._z) console.log(newR)
-    prevR = newR
-
-    const newP = this.el.object3D.rotation
-    if (prevP.x !== newP.x || prevP.y !== newP.y || prevP.z != newP.z) console.log(newP)
-    prevP = newP
-  }
-});
 
 
 // Unused reference implementations below

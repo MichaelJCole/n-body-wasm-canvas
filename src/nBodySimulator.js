@@ -92,6 +92,10 @@ export class nBodySimulator {
   addBody(body) {
     this.objBodies.push(body)
   }
+  addBodyArgs(name, color, x, y, z, mass, vX, vY, vZ) {
+    this.addBody(new Body(name, color, x, y, z, mass, vX, vY, vZ))
+  }
+
 
   /**
    * Start the simulation loop
@@ -110,7 +114,7 @@ export class nBodySimulator {
     if (this.ready()) {
       await this.calculateForces()
     } else {
-      console.log(`Skipping calcuation becuase worker is busy:${this.workerCalculating} or not ready:${this.workerReady}`)
+      console.log(`Skipping sim calcuation.  Worker is busy:${this.workerCalculating}`)
     }
 
     // Remove any "debris" that has traveled out of bounds - this is for the button

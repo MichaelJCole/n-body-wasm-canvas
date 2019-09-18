@@ -9,12 +9,21 @@ const terser = require('rollup-plugin-terser').terser
 
 const portable = require("assemblyscript/std/portable")
 
+const ghPages = require('gulp-gh-pages');
+
 
 gulp.task("default", ["build"])
 gulp.task("build", ["build-assembly", "build-rollup"])
 gulp.task('build-assembly', ['build-assembly-asc', 'copy-nBodyForces.wasm.map'])
 gulp.task('build-rollup', ['build-rollup-rollup', 'copy-assets'])
 gulp.task('dev', ['dev-assembly', 'dev-rollup', 'dev-serve'])
+
+// Deploy to github pages
+
+gulp.task('deploy', function() {
+  return gulp.src('./dist/**/*')
+    .pipe(ghPages());
+});
 
 // For more information see: https://docs.assemblyscript.org/details/runtime
 

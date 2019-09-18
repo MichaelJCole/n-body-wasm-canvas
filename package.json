@@ -15,6 +15,7 @@
   "devDependencies": {
     "assemblyscript": "github:AssemblyScript/assemblyscript#22c4cf42f05bd8610e5f8924d27a5b8636405a6d",
     "gulp": "^3",
+    "gulp-gh-pages": "^0.5.4",
     "gulp-watch": "^5.0.1",
     "gulp-webserver": "^0.9.1",
     "http-server": "^0.11.1",
