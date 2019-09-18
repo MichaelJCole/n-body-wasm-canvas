@@ -1,4 +1,4 @@
-import { nBodyVisualizer, nBodyVisWebVR } from "./nBodyVisualizer"
+import { nBodyVisPrettyPrint, nBodyVisCanvas } from "./nBodyVisualizer"
 import { Body, nBodySimulator } from "./nBodySimulator"
 
 window.onload = function() {
