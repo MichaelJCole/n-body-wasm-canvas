@@ -1,34 +1,33 @@
-const gulp = require("gulp");
-const ts = require('gulp-typescript');
-const rename = require('gulp-rename');
-const watch = require('gulp-watch');
+const gulp = require("gulp")
+const rollup = require("rollup")
+const watch = require('gulp-watch')
+const webserver = require('gulp-webserver')
 
-const portable = require("assemblyscript/std/portable");
+const resolve = require('rollup-plugin-node-resolve')
+const commonjs = require('rollup-plugin-commonjs')
+const terser = require('rollup-plugin-terser').terser
+
+const portable = require("assemblyscript/std/portable")
+
+const ghPages = require('gulp-gh-pages');
 
 
-/*
-  Assemblyscript Runtime variants:
+gulp.task("default", ["build"])
+gulp.task("build", ["build-assembly", "build-rollup"])
+gulp.task('build-assembly', ['build-assembly-asc', 'copy-nBodyForces.wasm.map'])
+gulp.task('build-rollup', ['build-rollup-rollup', 'copy-assets'])
+gulp.task('dev', ['dev-assembly', 'dev-rollup', 'dev-serve'])
 
-  "--runtime", "full" (default)
-    A proper memory manager and reference-counting based garbage collector, with runtime interfaces
-    being exported to the host for being able to create managed objects externally.
+// Deploy to github pages
 
-  "--runtime", "half"
-    The same as full but without any exports, i.e. where creating objects externally is not required.
-    This allows the optimizer to eliminate parts of the runtime that are not needed.
+gulp.task('deploy', function() {
+  return gulp.src('./dist/**/*')
+    .pipe(ghPages());
+});
 
-  "--runtime", "stub"
-    A minimalist arena memory manager without any means of freeing up memory again, but the same external
-    interface as full. Useful for very short-lived programs or programs with hardly any memory footprint,
-    while keeping the option to switch to full without any further changes. No garbage collection.
+// For more information see: https://docs.assemblyscript.org/details/runtime
 
-  "--runtime", "none"
-    The same as stub but without any exports, for the same reasons as explained in half. Essentially
-    evaporates entirely after optimizations.
-
-    For more information see: https://docs.assemblyscript.org/details/runtime
-*/
-gulp.task("build-assembly", callback => {
+gulp.task("build-assembly-asc", callback => {
   const asc = require("assemblyscript/bin/asc");
   asc.main([
     "nBodyForces.ts",
@@ -48,40 +47,97 @@ gulp.task("build-assembly", callback => {
     "--measure",
     "--validate"
   ], callback);
-});
+})
 
 // Copy /assembly/nBodyForces.wasm.map to /nBodyForces.wasm.map for chrome debugger
+
 gulp.task('copy-nBodyForces.wasm.map', function() {
   gulp.src('./dist/assembly/nBodyForces.wasm.map')
   .pipe(gulp.dest('./dist'));
-});
+})
 
-// This does not work because we are using shared memory to pass arrays in/out
-// asc/tsc - portability is(was?) a work in progress: https://docs.assemblyscript.org/details/portability
-gulp.task('build-js', function () {
-  /*
-  const tsProject = ts.createProject('src/assembly/tsconfig.json');
+// Run rollup on source 
+let production = true
+gulp.task('build-rollup-rollup', function() {
+  return Promise.all([
+    rollup.rollup({
+      input: 'src/main.js',
+      plugins: [
+        resolve(), // tells Rollup how to find date-fns in node_modules
+        commonjs(), // converts date-fns to ES modules
+        production && terser() // minify, but only in production
+      ]
+    }).then(bundle => {
+      return bundle.write({
+        file: 'dist/main.js',
+        format: 'iife', // immediately-invoked function expression — suitable for <script> tags
+        name: 'main',
+        sourcemap: true
+      })
+    }),
+    rollup.rollup({
+      input: 'src/workerWasm.js',
+      plugins: [
+        resolve(), // tells Rollup how to find date-fns in node_modules
+        commonjs(), // converts date-fns to ES modules
+        production && terser() // minify, but only in production
+      ]
+    }).then(bundle => {
+      return bundle.write({
+        file: 'dist/workerWasm.js',
+        format: 'iife', 
+        name: 'workerWasm',
+        sourcemap: true
+      })
+    })
+  ])
+})
 
-  return tsProject.src()
-    .pipe(tsProject())
-    .pipe(rename(function (path) {
-      path.basename += ".tsc";
-    }))
-    .pipe(gulp.dest('dist/assembly'));
-  */
-});
+// Copy static assets
 
+gulp.task('copy-assets', function() {
+  gulp.src('./src/index.html')
+    .pipe(gulp.dest('./dist'))
+  gulp.src('./src/favicon.ico')
+    .pipe(gulp.dest('./dist'))
+})
 
-gulp.task("build", ["build-assembly", "copy-nBodyForces.wasm.map", "build-js"]);
-gulp.task("default", ["build"]);
+// Watch for changes and rebuild
 
-gulp.task('dev', ['dev-assembly']);
 gulp.task('dev-assembly', function() {
+  gulp.start('build-assembly')
   watch(
-    'src/assembly/*', 
-    { ignoreInitial: false },
+    'src/assembly/nBodyForces.ts', 
     function() {
-      gulp.start('build');
+      gulp.start('build-assembly')
     }
-  );
-});
+  )
+})
+
+// Watch for changes and rebuild
+
+gulp.task('dev-rollup', function() {
+  production = false
+  gulp.start('build-rollup')
+  watch(
+    ['src/**/*.js', 'src/index.html'],
+    function() {
+      gulp.start('build-rollup')
+    }
+  )
+})
+
+// Run a live reloading server
+
+gulp.task('dev-serve', function() {
+  gulp.src('dist')
+    .pipe(webserver({
+      fallback: 'index.html',
+      livereload: true,
+      open: true,
+      middleware: (req, res, next) => {
+        if (req.originalUrl.endsWith('.wasm')) res.setHeader('Content-Type', 'application/wasm')
+        next()
+      }
+    }))
+})

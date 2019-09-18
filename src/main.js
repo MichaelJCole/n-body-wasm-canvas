@@ -8,7 +8,7 @@ window.onload = function() {
   // Add some visualizers
   sim.addVisualization(new nBodyVisPrettyPrint(document.getElementById("visPrettyPrint")))
   sim.addVisualization(new nBodyVisCanvas(document.getElementById("visCanvas")))
-  
+
   // This is a simulation, using opinionated G = 6.674e-11
   // So boring values are allowed and create systems that collapse over billions of years.
 
