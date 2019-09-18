@@ -1393,7 +1393,7 @@ function asmFunc(global, env, buffer) {
   $0 = $0 | 0;
   $1 = $1 | 0;
   if ($1 >>> 0 >= ((HEAP32[($0 + 8 | 0) >> 2] | 0) >>> 3 | 0) >>> 0) {
-   $lib_builtins_abort(176 | 0, 488 | 0, 1308 | 0, 63 | 0);
+   $lib_builtins_abort(176 | 0, 488 | 0, 1227 | 0, 63 | 0);
    abort();
   }
   return +(+HEAPF64[((HEAP32[($0 + 4 | 0) >> 2] | 0) + ($1 << 3 | 0) | 0) >> 3]);
@@ -1577,7 +1577,7 @@ function asmFunc(global, env, buffer) {
   $1 = $1 | 0;
   $2 = +$2;
   if ($1 >>> 0 >= ((HEAP32[($0 + 8 | 0) >> 2] | 0) >>> 3 | 0) >>> 0) {
-   $lib_builtins_abort(176 | 0, 488 | 0, 1319 | 0, 63 | 0);
+   $lib_builtins_abort(176 | 0, 488 | 0, 1238 | 0, 63 | 0);
    abort();
   }
   HEAPF64[((HEAP32[($0 + 4 | 0) >> 2] | 0) + ($1 << 3 | 0) | 0) >> 3] = $2;
