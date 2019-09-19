@@ -23,36 +23,36 @@ export const bodySize: i32 = 4
 export const forceSize: i32 = 3
 
 /**
+ * Given two bodies, calculate the Force of Gravity, then return as a 3-force vector (x, y, z)
  * 
+ * Sometimes, the force of gravity is:  
  * 
- * Science for the win!  Calculate the forces of Gravity (G) on two bodies.  Return as a 3-force vector (x, y, z)
- * 
- * Sometimes, the force of gravity is:  Fg  =  G * m0 * m1 * d / d^2
+ * Fg  =  G * mA * mB / r^2
  * 
  * Today, we're using better-gravity, because better-gravity can calculate force vectors without polar math (sin, cos, tan)
  * 
- * If that sounds like bullshit, it is, but it's not wrong:
+ * Fbg =  G * mA * mB * dr / r^3     // using dr as a 3-value vector let's us project Fbg as a 3-force vector
+ * 
+ * It may sound like bullshit, but it's not wrong:
  * - https://physics.stackexchange.com/questions/17285/split-gravitational-force-into-x-y-and-z-componenets
  * - https://stackoverflow.com/questions/57966211/calcuate-force-of-gravity-on-2-bodies-in-3d-space?noredirect=1#comment102344210_57966211
  * 
  * Given:
  * - dx = bodyB.x - bodyA.x
- * - r = sqrt ( dx + dy + dz) = straight line distance between objects    
- * - G = gravitational constant
+ * - dr = (dx, dy, dz)     // a 3-value vector
+ * - r  = sqrt ( dx + dy + dz) = straight line distance between objects    
+ * - G  = gravitational constant
  * - mA, mB = mass of objects
  * 
- * We solve for the change in the x,y,z coordinates
+ * Force of Better-Gravity:
  * 
- * - dr = the change in distance (we can project to x,y,z coords) 
- * - dr = (dx, dy, dz) We can split to a 3-force vector and solve separately for each
- * 
- * Force of Better-Gravity for x:
- * 
- * - Fbg = the change in force applied by gravity over a time
- * - Fbg = G * mA * mB * dr / r^3   // dr projects to dx, dy, dz
+ * - Fbg = (Fx, Fy, Fz)  =  the change in force applied by gravity each body's (x,y,z) over a time period (1)
+ * - Fbg = G * mA * mB * dr / r^3   // dr = (dx, dy, dz)
  * - Fx = Gmm * dx / r3 
  * - Fy = Gmm * dy / r3 
  * - Fz = Gmm * dz / r3 
+ * 
+ * From the parameters, return an array 
  * 
  * @param xA - BodyA x
  * @param yA - BodyA y
@@ -65,17 +65,9 @@ export const forceSize: i32 = 3
  * @return - [fx, fy, fz]
  */
 function twoBodyForces(xA: f64, yA: f64, zA: f64, mA: f64, xB: f64, yB: f64, zB: f64, mB: f64): f64[] {
-  /*
-      dx = xB - xA
-      r3 = sqrt(dx+dy+dz) ^3 = straight line distance between objects, cubed
-      Gmm = G * mA * mB;
-      Fx = Gmm * dx / r3 
-      Fy = Gmm * dy / r3 
-      Fz = Gmm * dz / r3 
-   */
 
   // Values used in each x,y,z calculation
-  const Gmm = G * mA * mB
+  const Gmm: f64 = G * mA * mB
   const dx: f64 = xB - xA
   const dy: f64 = yB - yA
   const dz: f64 = zB - zA
@@ -93,7 +85,6 @@ function twoBodyForces(xA: f64, yA: f64, zA: f64, mA: f64, xB: f64, yB: f64, zB:
   ret[1] = Gmm * dy / r3
   ret[2] = Gmm * dz / r3
 
-  //trace("ret", 3, ret[0], ret[1], ret[2])
   return ret;
 }
 
