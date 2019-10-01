@@ -65,9 +65,9 @@ index.html
   |
 main.js
   |
-nBodySystem.js-----(web worker------workerWasm.js
-  |              message passing)     |
-(draws to)                          nBodyForces.wasm
+nBodySimulator.js-----(web worker------workerWasm.js
+  |                 message passing)     |
+(draws to)                             nBodyForces.wasm
   |
 nBodyVisualizer.js
 ```
@@ -84,7 +84,7 @@ src/main.js                  -  Entry point.  Creates a nBodySystem(), passing a
 
 src/nBodyVisualizer.js       -  Simulation visualizers   <===  ES6 Classes are standard and fun
 
-src/nBodySystem.js           -  Simulation loop and loads a nBodyForces implementation
+src/nBodySimulator.js        -  Simulation loop and loads a nBodyForces implementation
 src/workerWasm.js            -  Web worker to calculate in separate thread     <=== WebAssembly and Web Workers
 
 gulpfile.js                  -  Gulpfile to process assembly/*
