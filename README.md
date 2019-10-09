@@ -48,7 +48,7 @@ I'm always evaluating alternative tools to see what's coming in the future of te
 
 - Why so complicated?  Memory management is still a thing.  I spent a fair amount of time on this project trying to get it to work without a build toolchange.  Passing arrays to/from AssemblyScript is dumb-hard (the unsatisfying kind of hard), and the best solution is to use [AssemblyScript's loader](https://docs.assemblyscript.org/basics/loader), which is going to require a require().
 
-- Why [rollup](https://rollupjs.org/guide/en/)?  Facebook has done an amazing job sponsoring and shaping the open source and web development toolchain with `yarn` and `webpack`.  I wanted something lighter-weight than `webpack` so tried rollup.  Rollup was trivial to configure a 2nd entry point and requires almost no attention.  
+- Why [rollup](https://rollupjs.org/guide/en/)?  I wanted something lighter-weight than `webpack` so tried rollup.  Rollup was trivial to configure a 2nd entry point and requires("almost no attention").  
 
 
 # Architecture and Design
